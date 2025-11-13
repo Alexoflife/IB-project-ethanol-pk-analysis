@@ -1,5 +1,75 @@
 ---
 title: "week_1"
 format: html
+editor: 
+  markdown: 
+    wrap: 72
 ---
+
+```{r}
+#| message: false
+library(tidyverse)
+library(tidyplots)
+library(readr)
+library(patchwork)
+
+```
+
+# Цели и задачи
+
+-   Визуализация кривых концентрация-время (спагетти-плот)
+
+    -   В виде индивидуальных кривых
+
+    -   В виде среднего +- стандартное отклонение для каждой временной
+        точки
+
+-   Расчет основных фармакокинетических параметров: Cmax, tmax, AUC0-t ,
+    β, Vd
+
+    -   Центральная тенденция (mean, median)
+
+    -   Разброс (sd, coefficient of variation (CV) )
+
+-   Визуализация выборочных распределений всех параметров из предыдущего
+    пункта с помощью Гистограмм Боксплотов
+
+-   Интерпретация результатов и короткий отчет
+
+```{r}
+theme_set(
+  theme_minimal(base_size = 18) +
+    theme(
+      plot.title = element_text(face = "bold", size = 20, hjust = 0.5),
+      axis.title = element_text(size = 18, face = "bold",hjust = 0.5),
+      axis.text  = element_text(size = 15),
+      legend.text = element_text(size = 14),
+      legend.title = element_text(size = 15, face = "bold")
+    )
+)
+```
+
+
+```{r}
+Jones_1984 <- read_csv("data/raw/Jones-1984.csv")
+
+Jones_1984
+```
+
+```{r}
+Jones_1984 %>% 
+ggplot(aes(x = time_min,
+             y = conc_g_per_L,
+             group = subject_id,
+             color = factor(subject_id))) +
+  geom_line(alpha = 0.6) +
+  geom_point(size = 0.8, alpha = 0.8) +
+  labs(x = "Время, мин",
+       y = "Концентрация, г/л",
+       color = "Испытуемый",
+       title = "График концентраций по испытуемым в виде индивидуальных кривых") +
+  theme_bw() +
+  theme(legend.position = "none")
+           
+```
 
