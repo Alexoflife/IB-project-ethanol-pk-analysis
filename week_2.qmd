@@ -279,16 +279,72 @@ summ_oc_1 | summ_oc_2
 
 
 ### ANOVA
+Смотрим дисперсионный анализ, одинаковые ли средние
+
+Сmax
 
 ```{r}
+Cmax_aov <- aov(C_max ~ factor(subject_id) + factor(occasion),
+                data = pk_params)
+cat("ANOVA Cmax\n")
+summary(Cmax_aov)
 
 ```
+Межсубъектная изменчивость не достигает статистической значимости, В то же время фактор occasion оказывает статистически значимое влияние на Cmax (F(1,11) = 5.33, p = 0.041), что свидетельствует о различии средних значений Cmax между первым и вторым приёмом препарата (occasion 1 vs 2). Residuals - 6 % - не объяснить
+
+
+```{r}
+Tmax_aov <- aov(T_max ~ factor(subject_id) + factor(occasion),
+                data = pk_params)
+
+cat("ANOVA Tmax\n")
+summary(Tmax_aov)
+
+```
+Нет статистически значимых различий по параметрам
+
+```{r}
+AUC_aov <- aov(AUC_linear ~ factor(subject_id) + factor(occasion),
+                data = pk_params)
+
+cat("ANOVA AUC\n")
+summary(AUC_aov)
+
+```
+AUC   статистически значимо различается и межсубъектно, и внутрисубъектно (occasion), большинство изменчивости межсубьектной
+
+```{r}
+Beta_aov <- aov(Beta_LM ~ factor(subject_id) + factor(occasion),
+                data = pk_params)
+
+cat("ANOVA Beta\n")
+summary(Beta_aov)
+
+```
+Наклон (beta) существенно отличается между субъектами.
+
+```{r}
+C0_aov <- aov(C0_LM ~ factor(subject_id) + factor(occasion),
+                data = pk_params)
+
+cat("ANOVA C0\n")
+summary(C0_aov)
+```
+C0 (интерсепт), существенно отличается мужду субъектами
+
+```{r}
+Vd_aov <- aov(Vd ~ factor(subject_id) + factor(occasion),
+                data = pk_params)
+
+cat("ANOVA C0\n")
+summary(Vd_aov)
+```
+Vd существенно отличается мужду субъектами
+
 
 ### CVInter, CVintra + визуализация результатов
-
 ```{r}
 
 ```
-
 
 
