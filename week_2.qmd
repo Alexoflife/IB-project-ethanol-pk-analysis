@@ -368,7 +368,7 @@ pk_params_cv <- pk_params_log %>%
   group_by(variable) %>% 
   summarize(
     MSb = AOV_calc(cur_data())[[1]]["Mean Sq"][[1]][1],
-    MSw = AOV_calc(cur_data())[[1]]["Mean Sq"][[1]][2],
+    MSw = AOV_calc(cur_data())[[1]]["Mean Sq"][[1]][3],
     Vb = (MSb - MSw)/4,
     Vw = MSw,
     Between_subj_var = (Vb/(Vb + Vw)) * 100,
