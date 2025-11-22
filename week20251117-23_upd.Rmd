@@ -20,7 +20,7 @@ library(flextable)
 
 ## Настройка темы
 
-```{r theme_set, echo=FALSE}
+```{r theme_set, echo=TRUE}
 theme_custom <-
   theme(
         axis.text.x = element_text(size = 20),
@@ -50,15 +50,15 @@ set_flextable_defaults(table.layout = "autofit")
 
 # Загрузка и подготовка датасета
 
-```{r upload, echo=FALSE}
+```{r upload, echo=TRUE}
 data_Yelland <- read.csv("data/raw/Yelland-2008.csv")
 data_Yelland <- data_Yelland %>% 
   mutate(across(c(subject_id, occasion), as.character))
 str(data_Yelland)
 ```
+# Графики индивидуальных кривых
 
-
-```{r plot-conc-time, fig.width=24, fig.height=16, echo=FALSE, warning=FALSE, message=FALSE}
+```{r plot-conc-time, fig.width=24, fig.height=16, echo=FALSE, warning=FALSE, message=TRUE}
 plot2 <- data_Yelland %>% 
   select(subject_id, conc_g_per_L, time_min, occasion) %>% 
   ggplot(aes(color = occasion)) +
@@ -72,7 +72,7 @@ plot2 <- data_Yelland %>%
 
 plot2
 ```
-```{r point_num, echo=FALSE}
+```{r point_num, echo=TRUE}
 # current_num <- 1
 # for(i in 1:nrow(data_Yelland)) {
 #   if(data_Yelland$time_min[i] == 0) {
@@ -87,19 +87,25 @@ plot2
 # rm(current_num)
 
 # можно сделать то же самое с помощью row_number()
+data_Yelland <- data_Yelland %>% 
+  mutate(case_name = str_c(subject_id, "_",occasion))
+
 data_Yelland <- data_Yelland %>%
-  group_by(subject_id) %>%
+  group_by(case_name) %>%
   mutate(point_id = row_number()) %>% 
   ungroup()
 ```
 
-```{r plot-conc-time-avg-2, fig.width=16, fig.height=9, echo=FALSE, eval=FALSE, warning=FALSE, message=FALSE}
+# Среднее и стандартное отклонение по всем субъектам (по номеру точки)
+
+Время на точках усреднено
+
+```{r plot-conc-time-avg-2, fig.width=16, fig.height=9, echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
 data_Yelland_mean_sd <- data_Yelland %>% 
   group_by(point_id) %>%
-  summarise(conc_avg = mean(conc_g_per_L), conc_max = mean(conc_g_per_L) + sd(conc_g_per_L), conc_min = mean(conc_g_per_L) - sd(conc_g_per_L), time_min_avg = mean(time_min)) %>%  
-  ungroup()
+  summarise(conc_avg = mean(conc_g_per_L), conc_max = mean(conc_g_per_L) + sd(conc_g_per_L), conc_min = mean(conc_g_per_L) - sd(conc_g_per_L), time_min_avg = mean(time_min))
 
-data_Yelland_conc %>% 
+data_Yelland_mean_sd %>% 
   ggplot() +
   geom_line(aes(x = time_min_avg, y = conc_avg)) +
   geom_errorbar(aes(x = time_min_avg, ymin = conc_min, ymax = conc_max), width = 6, size=0.5) +
@@ -156,8 +162,7 @@ stat_ph <- list(
         "Коэффициент вариации (CV), %" = ~round((sd(., na.rm = TRUE))/(mean(., na.rm = TRUE)) * 100, 2)
         )
 
-data_Yelland <- data_Yelland %>% 
-  mutate(case_name = str_c(subject_id, "_",occasion))
+
 
 pharmacokinetics_data <- data_Yelland %>% 
   arrange(time_min) %>% 
@@ -176,7 +181,7 @@ pharmacokinetics_data <- data_Yelland %>%
 ```
 
 ## Рассчитаем центральную тенденцию и разброс
-```{r pharm-parameters-stat, echo=FALSE}
+```{r pharm-parameters-stat, echo=TRUE}
 pharmacokinetics_data_table <- pharmacokinetics_data %>% 
   mutate(Beta = Beta * 60) %>%  # перевожу в г/л в час
   rename(`β, г/л в час` = Beta,
@@ -185,7 +190,7 @@ pharmacokinetics_data_table <- pharmacokinetics_data %>%
          `AUC0-t, г*мин/л` = AUC,
          `Cmax, г/л` = Cmax,
          `Tmax, мин` = Tmax,
-         `Absortion rate` = Abs_rate)
+         `Absortion rate, г/л в час` = Abs_rate)
 pharmacokinetics_data_table %>%
   select(-subject_id, -occasion) %>% 
   pivot_longer(!case_name,
@@ -252,7 +257,6 @@ wrap_plots(hist_plots, ncol = 2) +
   plot_annotation(title = "Гистограммы и боксплоты фарм. показателей",
                   theme = standard_theme)
 ```
-
 # CVinter и CVintra
 
 ```{r}
@@ -302,6 +306,98 @@ pharmacokinetics_data_table <- pharmacokinetics_data_table %>%
   ungroup() %>%
   left_join(pharmacokinetics_data_variance)
 
-pharmacokinetics_data_table
+pharmacokinetics_data_table %>% 
+  flextable() %>%
+  theme_box %>% 
+  fontsize(size=9) %>% 
+  add_header_row(values  = "Описательные статистики фармакокинетических показателей вместе с межсубъектной и внутрисубъектной вариабельностью", colwidths = 11)
 ```
 
+# Визуализация отклонений от среднего по субъекту
+
+```{r}
+pharmacokinetics_data <- pharmacokinetics_data %>%
+  mutate(Beta = Beta * 60) %>%
+  rename(`β, г/л в час` = Beta,
+         `C0, г/л` = C_0,
+         `Vd, л/кг` = V_d,
+         `AUC0-t, г*мин/л` = AUC,
+         `Cmax, г/л` = Cmax,
+         `Tmax, мин` = Tmax,
+         `Absortion rate, г/л в час` = Abs_rate)
+```
+
+## β, г/л в час
+
+```{r, fig.height=40, fig.width=17, dpi=300}
+param_plot_fn <- function(data, col, occasion, subject_id) {
+  
+  data_upd <- data %>% 
+    group_by({{subject_id}}) %>% 
+    mutate(subj_mean = mean({{col}}, na.rm = TRUE)) %>% 
+    ungroup()
+  
+  ggplot(data_upd, aes(x = {{col}})) +
+  geom_hline(aes(yintercept = {{col}}),
+             color = "purple3",
+             linewidth = 2) +
+  geom_hline(aes(yintercept = subj_mean),
+               color = "forestgreen",
+               linetype = 2,
+               linewidth = 2) +
+  labs(title = rlang::englue("{{col}}"),
+       y = rlang::englue("{{col}}"),
+       x = "") +
+   facet_grid(rows = vars(as.numeric({{subject_id}})),
+              cols = vars({{occasion}}),
+              labeller = labeller(
+                .rows = function(x) paste("Номер субъекта:", x),
+                .cols = function(x) paste("Номер визита:", x)
+      )
+) +
+    theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5, size = 35),
+        axis.title = element_text(size = 30),
+        axis.text.y = element_text(size = 30),
+        axis.text.x = element_text(size = 30),
+        strip.text = element_text(size = 24)
+        )
+}
+
+param_plot_fn(pharmacokinetics_data, `β, г/л в час`, occasion, subject_id)
+```
+
+## C0, г/л
+
+```{r, fig.height=40, fig.width=17, dpi=300}
+param_plot_fn(pharmacokinetics_data, `C0, г/л`, occasion, subject_id)
+```
+## Объём распространения, л/кг
+
+```{r, fig.height=40, fig.width=17, dpi=300}
+param_plot_fn(pharmacokinetics_data, `Vd, л/кг`, occasion, subject_id)
+```
+
+## Площадь под кривой 0-t, г*мин/л
+
+```{r, fig.height=40, fig.width=17, dpi=300}
+param_plot_fn(pharmacokinetics_data, `AUC0-t, г*мин/л`, occasion, subject_id)
+```
+
+## Cmax, г/л
+
+```{r, fig.height=40, fig.width=17, dpi=300}
+param_plot_fn(pharmacokinetics_data, `Cmax, г/л`, occasion, subject_id)
+```
+
+## Tmax, мин
+
+```{r, fig.height=40, fig.width=17, dpi=300}
+param_plot_fn(pharmacokinetics_data, `Tmax, мин`, occasion, subject_id)
+```
+
+## Скорость абсорбции, г/л в час
+
+```{r, fig.height=40, fig.width=17, dpi=300}
+param_plot_fn(pharmacokinetics_data, `Absortion rate, г/л в час`, occasion, subject_id)
+```
