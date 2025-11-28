@@ -1,0 +1,143 @@
+---
+title: "week_3-4"
+format: html
+---
+
+```{r}
+library(tidyverse)
+library(readr)
+library(skimr)
+library(patchwork)
+library(modelsummary)
+library(broom)
+library(ggfortify)
+library(ggResidpanel)
+library(performance)
+library(lmtest)
+library(sandwich)
+library(car)
+library(emmeans)
+library(marginaleffects)
+library(gtsummary)
+```
+
+Используйте все доступные вам датасеты
+
+Определите влияние на ФК параметры следующих ковариат: Dose (g/kg),  Height (BH), Weight (WT), Lean body weight (LBW), surface area (BSA), food status (fed/fasted), sex, age, site (venous/capillary) и других доступных.
+
+EDA: боксплоты/гистограммы/корреляции/тесты/Спагетти-плоты усреднённые для различных значений ковариат (food status, Weight, Age …)
+
+Основной регрессионный анализ (линейная регрессия одно/многофакторная) : для каждого датасета отдельно и для комбинаций датасетов. (всегда помните об ограничениях линейной регрессии) + опционально anova для оценки вклада ковариат в общую вариабельность.
+
+
+Визуализация и интерпретация результатов (Доверительные интервалы для коэффициентов регрессии, показать вклад ковариат в общую вариабельность
+
+Формулы
+BSA = sqrt(Heigt * Weight)/3600 
+BMI = Weight / (Height/100)^2
+LBM =
+
+
+
+```{r}
+
+# Профили "time–conc"
+ammon      <- read_csv("data/raw/Ammon-1996.csv")
+thierauf   <- read_csv("data/raw/Thierauf-Emberger-2023.csv")
+jones      <- read_csv("data/raw/Jones-1984.csv")
+wilkinson_po    <- read_csv("data/raw/Wilkinson-1976-PO.csv")
+wilkinson_iv    <- read_csv("data/raw/Wilkinson-1976-IV.csv")
+yelland    <- read_csv("data/raw/Yelland-2008.csv")
+
+# Профили "Cmax"
+vestal_y   <- read_csv("data/raw/Vestal-1977-young.csv")
+vestal_e   <- read_csv("data/raw/Vestal-1977-elderly.csv")
+
+# Объеденим все с time-conc
+full_data_tc <- bind_rows(ammon,
+                       thierauf,
+                       jones,
+                       wilkinson_po,
+                       wilkinson_iv,
+                       yelland)  
+
+skimr::skim(full_data_tc)
+
+
+full_data_tc <- full_data_tc %>% 
+    filter(!is.na(conc_g_per_L)) %>% # выбрасываем строки без концентрации
+  
+  
+
+```
+
+
+```{r}
+
+vestal_all <- bind_rows(vestal_y, vestal_e) 
+
+
+vestal_all <- vestal_all %>% 
+  transmute(
+    study_id,
+    subject_id,
+    Cmax = Cmax_mg_dl,          
+    # ковариаты в общем формате
+    Dose = dose_g_per_kg,       # Dose (g/kg)
+    WT   = WT_kg,               # Weight (WT)
+    LBW  = LBM_kg,              # Lean body weight (LBW)
+    BSA  = BSA_m2,              # surface area (BSA)
+
+    food,    
+    sex  = factor(Sex),                                  # sex
+    age  = Age,                                          # age
+    site, # site
+    route,
+    infusion_duration_min
+  )
+```
+
+
+### Статистики Vestal
+```{r}
+vestal_all %>% 
+  tbl_summary(by = study_id,
+              include = c(Cmax, WT, LBW, BSA, age)) %>% 
+  add_ci() %>% 
+  add_p() %>% 
+  add_overall()
+```
+
+### Линейная регрессия
+
+```{r}
+mod <- lm( log(Cmax) ~ WT + LBW + BSA + age + study_id, data = vestal_all)
+
+summary(mod, conf_level = 0.95)
+
+```
+### Диагностика
+
+```{r, dpi= 300}
+#| fig-height: 10
+#| fig-width: 10
+check_model(mod)
+```
+```{r}
+resid_xpanel(mod, smoother = TRUE)
+```
+
+```{r dpi=300}
+#| fig-height: 10
+#| fig-width: 10
+mod2 <- lm(Cmax ~ BSA + age+ I(age^2) + study_id, data = vestal_all)
+# возвести все в 
+check_model(mod2)
+
+```
+
+```{r}
+Anova(mod2)
+
+```
+
