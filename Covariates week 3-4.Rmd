@@ -387,7 +387,6 @@ Wilkinson_PO_pk <- Wilkinson_PO_clean %>%
   slice(1) %>% 
   ungroup() %>% 
   right_join(Wilkinson_PO_pk)
-
 ```
 
 ```{r westal_old_pk}
