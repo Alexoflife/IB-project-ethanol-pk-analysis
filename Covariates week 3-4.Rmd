@@ -40,12 +40,19 @@ Yelland_2008_clean <- Yelland_2008 %>%
 ```
 
 ```{r emberger_clean}
-  
+Emberger_2023_clean <- Emberger_2023 %>% 
+  filter(!is.na(conc_g_per_L)) %>% 
+  rename(wt_kg = WT_kg,
+         sex = Sex,
+         age = Age,
+         bh_cm = BH_cm,
+         bmi = BMI) %>% 
+  mutate(subject_id = str_c("TE", "-", subject_id))
 ```
 
 ```{r wilkinson_iv_clean}
 Wilkinson_IV_clean <- Wilkinson_IV %>% 
-  na.omit() %>% 
+  filter(!is.na(conc_g_per_L)) %>% 
   mutate(subject_id = paste("W-IV", subject_id, sep = "-")) %>% 
   rename(wt_kg = WT_kg,
          sex = Sex)
