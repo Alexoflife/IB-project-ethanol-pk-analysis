@@ -1,0 +1,173 @@
+---
+title: "Covariats_Wilkinson_IV"
+author: "Sagitova M.K."
+date: "2025-12-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+
+Jones_1984 <- read.csv("data/raw/Jones-1984.csv")
+Ammon_1996 <- read.csv("data/raw/Ammon-1996.csv")
+Yelland_2008 <- read.csv("data/raw/Yelland-2008.csv")
+Emberger_2023 <- read.csv("data/raw/Thierauf-Emberger-2023.csv")
+Wilkinson_IV <- read.csv("data/raw/Wilkinson-1976-IV.csv")
+Wilkinson_PO <- read.csv("data/raw/Wilkinson-1976-PO.csv")
+Vestal_1977_elderly <- read.csv("data/raw/Vestal-1977-elderly.csv")
+Vestal_1977_young <- read.csv("data/raw/Vestal-1977-young.csv")
+
+```
+
+1. Приведение данных к единому виду
+
+```{r ammon_clean}
+Ammon_1996_clean <- Ammon_1996 %>% 
+  mutate(subject_id = paste("A-IV", subject_id, occasion, sep = "-"))
+```
+
+```{r jones_clean}
+Jones_1984_clean <- Jones_1984 %>% 
+  mutate(subject_id = paste("J-PO", subject_id, sep = "-"))
+```
+
+```{r yelland_clean}
+Yelland_2008_clean <- Yelland_2008 %>% 
+  mutate(subject_id = paste("Y-PO", subject_id, occasion, sep = "-"))
+```
+
+```{r emberger_clean}
+  
+```
+
+```{r wilkinson_iv_clean}
+Wilkinson_IV_clean <- Wilkinson_IV %>% 
+  na.omit() %>% 
+  mutate(subject_id = paste("W-IV", subject_id, sep = "-")) %>% 
+  rename(wt_kg = WT_kg,
+         sex = Sex)
+```
+
+```{r wilkinson_po_clean}
+  
+```
+
+```{r westal_old_clean}
+  
+```
+
+```{r vestal_young_clean}
+  
+```
+
+2. Расчет ФК параметров для датасетов
+
+```{r pk_calc_functions}
+#k - это насколько мы прибавляем к индексу tmax
+pharma_fun <- function(conc, t, dose, k = 2) {
+  # Моделирование для подсчёта beta, C0, Vd
+  t_sample <- {{t}}[(first(which.max({{conc}})) + k):length({{t}})]
+  conc_sample <- conc[(first(which.max({{conc}})) + k):length({{conc}})]
+  dose <- first({{dose}})
+  model <- lm({{conc_sample}} ~ {{t_sample}})
+  Beta <- -as.numeric(model$coefficients[2])
+  C_0 <- as.numeric(model$coefficients[1])
+  V_d <- dose / C_0
+  
+  # Подсчёт AUC0-t
+  
+  # if (length({{t}}) < 2) AUC <- NA
+  # if (anyNA({{t}}) | anyNA({{conc}})) AUC <- NaN
+  t0 = {{t}}[-length({{t}})]
+  t1 = {{t}}[-1]
+  c0 = {{conc}}[-length({{conc}})]
+  c1 = {{conc}}[-1]
+  AUC = sum(((c0 + c1)/2)*(t1 - t0))
+  
+  # Подсчёт Cmax
+  cmax <- max(conc)
+  
+  # Подсчёт Tmax
+  tmax <- t[first(which.max(conc))]
+  return(list(Beta = Beta,
+              C_0 = C_0,
+              V_d = V_d,
+              AUC = AUC,
+              Cmax = cmax,
+              Tmax = tmax))
+}
+
+stat_ph <- list(
+        "Среднее" = ~mean(., na.rm = TRUE) %>% round(4),
+        "Медиана" = ~median(., na.rm = TRUE)%>% round(4),
+        "Стандартное отклонение"   = ~sd(., na.rm = TRUE) %>% round(4),
+        "Коэффициент вариации (CV), %" = ~round((sd(., na.rm = TRUE))/(mean(., na.rm = TRUE)) * 100, 2)
+        )
+
+```
+
+```{r jones_pk}
+Jones_1984_pk <- Jones_1984_clean %>% 
+  arrange(time_min) %>% 
+  nest(.by = subject_id, .key = "subject_data") %>% 
+  mutate(pharma = purrr::map(subject_data,
+                            ~pharma_fun(.$conc_g_per_L,
+                                        .$time_min,
+                                        .$dose_g_per_kg))) %>% 
+  unnest_wider(col = pharma) %>% 
+  select(-subject_data) -> pharmacokinetics_data  
+```
+
+```{r ammon_pk}
+Ammon_1996_pk <- Ammon_1996_clean %>% 
+  arrange(time_min) %>% 
+  nest(.by = subject_id, .key = "subject_data") %>% 
+  mutate(pharma = purrr::map(subject_data,
+                            ~pharma_fun(.$conc_g_per_L,
+                                        .$time_min,
+                                        .$dose_g_per_kg))) %>% 
+  unnest_wider(col = pharma) %>% 
+  select(-subject_data) -> pharmacokinetics_data  
+```
+
+```{r yelland_pk}
+Yelland_2008_pk <- Yelland_2008_clean %>% 
+  arrange(time_min) %>% 
+  nest(.by = subject_id, .key = "subject_data") %>% 
+  mutate(pharma = purrr::map(subject_data,
+                            ~pharma_fun(.$conc_g_per_L,
+                                        .$time_min,
+                                        .$dose_g_per_kg))) %>% 
+  unnest_wider(col = pharma) %>% 
+  select(-subject_data) -> pharmacokinetics_data  
+```
+
+```{r emberger_pk}
+  
+```
+
+```{r wilkinson_iv_pk}
+Wilkinson_IV_pk <- Wilkinson_IV_clean %>% 
+  arrange(time_min) %>% 
+  nest(.by = subject_id, .key = "subject_data") %>% 
+  mutate(pharma = purrr::map(subject_data,
+                            ~pharma_fun(.$conc_g_per_L,
+                                        .$time_min,
+                                        .$dose_g_per_kg))) %>% 
+  unnest_wider(col = pharma) %>% 
+  select(-subject_data) -> pharmacokinetics_data
+
+```
+
+```{r wilkinson_po_pk}
+  
+```
+
+```{r westal_old_pk}
+  
+```
+
+```{r vestal_young_pk}
+  
+```
