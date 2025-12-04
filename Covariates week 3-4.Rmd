@@ -380,3 +380,9 @@ Wilkinson_PO_pk <- Wilkinson_PO_clean %>%
   ungroup() %>% 
   right_join(Wilkinson_PO_pk)
 ```
+# 4. Объединение датасетов
+
+```{r}
+
+```
+
