@@ -238,14 +238,6 @@ Wilkinson_PO_clean %>%
        caption = "По данным Wilkinson-1976-PO")  
 ```
 
-```{r westal_old_mean_sd_plot}
-  
-```
-
-```{r vestal_young_mean_sd_plot}
-  
-```
-
 # 3. Расчет ФК параметров для датасетов
 
 ```{r pk_calc_functions}
@@ -387,12 +379,4 @@ Wilkinson_PO_pk <- Wilkinson_PO_clean %>%
   slice(1) %>% 
   ungroup() %>% 
   right_join(Wilkinson_PO_pk)
-```
-
-```{r westal_old_pk}
-  
-```
-
-```{r vestal_young_pk}
-  
 ```
