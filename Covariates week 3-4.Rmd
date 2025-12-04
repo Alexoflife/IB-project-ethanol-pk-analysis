@@ -172,6 +172,13 @@ Emberger_2023_pk <- Emberger_2023_clean %>%
                                         .$dose_g_per_kg))) %>% 
   unnest_wider(col = pharma) %>% 
   select(-subject_data)
+
+Emberger_2023_pk <- Emberger_2023_clean %>% 
+  select(-c(time_min, conc_g_per_L)) %>% 
+  group_by(subject_id) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  right_join(Emberger_2023_pk)
 ```
 
 ```{r wilkinson_iv_pk}
