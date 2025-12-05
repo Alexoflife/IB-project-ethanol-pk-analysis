@@ -574,7 +574,7 @@ main_df_long <- main_df %>%
     values_to = "value"
   )
 
-ggplot(num_long, aes(x = value)) +
+ggplot(main_df_long, aes(x = value)) +
   geom_histogram(bins = 30) +
   facet_wrap(~ variable, scales = "free") +
   theme_bw() +
@@ -582,7 +582,7 @@ ggplot(num_long, aes(x = value)) +
 ```
 
 ```{r Density plot}
-ggplot(num_long, aes(x = value)) +
+ggplot(main_df_long, aes(x = value)) +
   geom_density(na.rm = TRUE) +
   facet_wrap(~ variable, scales = "free") +
   theme_bw() +
@@ -613,6 +613,7 @@ ggplot(main_df_fac_long, aes(x = value)) +
 pk_num <- main_df %>% 
   select(where(is.numeric)) %>% 
   select(-lbm_kg, -bsa_m2, -bh_cm, -bmi) #лишние убрал
+
 
 cor_mat <- cor(pk_num, use = "pairwise.complete.obs")
 
