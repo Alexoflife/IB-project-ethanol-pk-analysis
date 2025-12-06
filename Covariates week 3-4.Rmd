@@ -630,6 +630,8 @@ cor_mat %>%
   ggcorr(., label = TRUE)
   
 ```
+Проверяем гипотезы о различиях групп по категориям food и site 
+
 H0: mean (fasted) = mean(fed)
 H1: mean (fasted) != mean(fed)
 
