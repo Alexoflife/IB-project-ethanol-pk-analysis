@@ -17,6 +17,8 @@ library(gridExtra)
 library(grid)
 library(ggfortify)
 library(performance)
+library(ggeffects)
+library(jtools)
 ```
 
 ```{r data_upload}
@@ -739,7 +741,7 @@ p2 <- main_df %>%
   theme_custom + 
   gender_fill
 
-p1 + p2 + plot_annotation(title = "Распределение Tmax по полу", theme = theme(plot.title = element_text(size = 20)))
+p1 + p2 + plot_annotation(title = "Distribution of Tmax by gender", theme = theme(plot.title = element_text(size = 20)))
   
 ```
 
@@ -763,7 +765,7 @@ p4 <-  main_df %>%
   theme_custom + 
   gender_fill
 
-p3 + p4 + plot_annotation(title = "Распределение Cmax по полу", theme = theme(plot.title = element_text(size = 20)))
+p3 + p4 + plot_annotation(title = "Distribution of Cmax by gender", theme = theme(plot.title = element_text(size = 20)))
   
 ```
 
@@ -788,7 +790,7 @@ p6 <- main_df %>%
   theme_custom + 
   gender_fill
 
-p5 + p6 + plot_annotation(title = "Распределение AUC по полу", theme = theme(plot.title = element_text(size = 20)))
+p5 + p6 + plot_annotation(title = "Distribution of AUC by gender", theme = theme(plot.title = element_text(size = 20)))
 ```
 
 ```{r, warning=FALSE, message=FALSE, fig.width=12, fig.height=5}
@@ -809,7 +811,7 @@ p8 <- main_df %>%
   theme_custom +
   route_fill
 
-p7 + p8 + plot_annotation(title = "Распределение Tmax по способу введения", theme = theme(plot.title = element_text(size = 20)))
+p7 + p8 + plot_annotation(title = "Distribution of Tmax by route", theme = theme(plot.title = element_text(size = 20)))
   
 ```
 
@@ -831,7 +833,7 @@ p10 <-  main_df %>%
   theme_custom + 
   route_fill
 
-p9 + p10 + plot_annotation(title = "Распределение Cmax по способу введения", theme = theme(plot.title = element_text(size = 20)))
+p9 + p10 + plot_annotation(title = "Distribution of Cmax by route", theme = theme(plot.title = element_text(size = 20)))
   
 ```
 
@@ -855,7 +857,7 @@ p12 <- main_df %>%
   theme_custom + 
   route_fill
 
-p11 + p12 + plot_annotation(title = "Распределение AUC по способу введения", theme = theme(plot.title = element_text(size = 20)))
+p11 + p12 + plot_annotation(title = "Distribution of AUC by route", theme = theme(plot.title = element_text(size = 20)))
 ```
 
 ```{r, warning=FALSE, message=FALSE, fig.width=12, fig.height=5}
@@ -876,7 +878,7 @@ p14 <- main_df %>%
   theme_custom +
   food_fill
 
-p13 + p14 + plot_annotation(title = "Распределение Tmax по статусу приёма пищи", theme = theme(plot.title = element_text(size = 20)))
+p13 + p14 + plot_annotation(title = "Distribution of Tmax by food consumption", theme = theme(plot.title = element_text(size = 20)))
   
 ```
 
@@ -898,7 +900,7 @@ p16 <-  main_df %>%
   theme_custom + 
   food_fill
 
-p15 + p16 + plot_annotation(title = "Распределение Cmax по статусу приёма пищи", theme = theme(plot.title = element_text(size = 20)))
+p15 + p16 + plot_annotation(title = "Distribution of Cmax by food consumption", theme = theme(plot.title = element_text(size = 20)))
   
 ```
 
@@ -921,7 +923,7 @@ p18 <- main_df %>%
   theme_custom + 
   food_fill
 
-p17 + p18 + plot_annotation(title = "Распределение AUC по статусу приёма пищи", theme = theme(plot.title = element_text(size = 20)))
+p17 + p18 + plot_annotation(title = "Distribution of AUC by food consumption", theme = theme(plot.title = element_text(size = 20)))
 ```
 ```{r, warning=FALSE, message=FALSE, fig.width=12, fig.height=5}
 p19 <- main_df %>% 
@@ -941,7 +943,7 @@ p20 <- main_df %>%
   theme_custom +
   site_fill
 
-p19 + p20 + plot_annotation(title = "Распределение Tmax по забору крови", theme = theme(plot.title = element_text(size = 20)))
+p19 + p20 + plot_annotation(title = "Distribution of Tmax by blood sampling", theme = theme(plot.title = element_text(size = 20)))
   
 ```
 ```{r, warning=FALSE, message=FALSE, fig.width=12, fig.height=5}
@@ -962,7 +964,7 @@ p22 <-  main_df %>%
   theme_custom + 
   site_fill
 
-p21 + p22 + plot_annotation(title = "Распределение Cmax по забору крови", theme = theme(plot.title = element_text(size = 20)))
+p21 + p22 + plot_annotation(title = "Distribution of Cmax by blood sampling", theme = theme(plot.title = element_text(size = 20)))
   
 ```
 ```{r, warning=FALSE, message=FALSE, fig.width=12, fig.height=5}
@@ -983,7 +985,7 @@ p24 <-  main_df %>%
   theme_custom + 
   site_fill
 
-p23 + p24 + plot_annotation(title = "Распределение AUC по забору крови", theme = theme(plot.title = element_text(size = 20)))
+p23 + p24 + plot_annotation(title = "Distribution of AUC by blood sampling", theme = theme(plot.title = element_text(size = 20)))
   
 ```
 
@@ -1070,6 +1072,8 @@ t.test(Tmax ~ sex, data = order_0_df)
 
 ### Аддитивная модель c основными переменными (доза, способ введения, способ забора крови)
 
+log(AUC) ~ dose_g_per_kg + route + site
+
 ```{r fit_lm}
 fit_AUC_mod <- lm(log(AUC) ~ dose_g_per_kg + route + site, order_0_df) #+food
 fit_AUC_submod <- lm(log(AUC) ~ 1, order_0_df)
@@ -1077,29 +1081,43 @@ fit_AUC_submod <- lm(log(AUC) ~ 1, order_0_df)
 #broom::tidy(fit_AUC_mod, conf.int = TRUE)
 #broom::tidy(fit_AUC_submod, conf.int = TRUE)
 
-
-summary(fit_AUC_mod)
+summ(fit_AUC_mod, confint = TRUE, digits = 3)
+#summary(fit_AUC_mod)
 #summary(fit_AUC_submod)
 
 anova(fit_AUC_mod, fit_AUC_submod)
 ```
+```{r, fig.width=8, fig.height=10}
+check_model(fit_AUC_mod)
+```
 
 
 ```{r}
+ggpredict(fit_AUC_mod, terms = c("dose_g_per_kg", "route", "site")) %>% plot(show_data = TRUE, log_y = FALSE, jitter = .01) + labs(subtitle = "Adjusted R-squared:  0.7626")
+```
+
+
+```{r, fig.width=7, fig.height=5, dpi=300}
+plot_coefs(fit_AUC_mod, omit.coefs = NULL, scale = TRUE, ci_level = 0.95, plot.distributions = FALSE, inner_ci_level = .1, colors = "CUD") + labs(title = "Beta coeffecients with 95% CI")
+```
+
+
+```{r, include=FALSE}
 table(order_0_df$site, order_0_df$food)
 ```
 
-```{r, fig.width=8, fig.height=10}
-check_model(fit_AUC_mod)
 
-```
 ### Аддитивная модель с дополнительными переменными
 
 ```{r fit_lm}
 fit_AUC_mod_add <- lm(log(AUC) ~ dose_g_per_kg + route + site + sex, order_0_df) #age не добавить
 
-summary(fit_AUC_mod)
-summary(fit_AUC_mod_add)
+summ(fit_AUC_mod, confint = TRUE, digits = 3)
+summ(fit_AUC_mod_add, confint = TRUE, digits = 3)
+
+
+# summary(fit_AUC_mod)
+# summary(fit_AUC_mod_add)
 
 
 #anova(fit_AUC_mod, fit_AUC_mod_add) для sex не работает anova
@@ -1109,7 +1127,7 @@ check_model(fit_AUC_mod_add)
 ```
 
 
-```{r}
+```{r, include=FALSE}
 order_0_df %>% filter(!is.na(age)) %>% select(dose_g_per_kg, site, route, age)
 # dose 0.57 однозначно соответствует route IV
 ```
@@ -1117,25 +1135,39 @@ order_0_df %>% filter(!is.na(age)) %>% select(dose_g_per_kg, site, route, age)
 ### Модель с взаимодействиями
 
 ```{r fit_lm}
-fit_AUC_mod_int1 <- lm(log(AUC) ~ dose_g_per_kg*route + site, order_0_df)
-fit_AUC_mod_int2 <- lm(log(AUC) ~ dose_g_per_kg + route*site, order_0_df)
-fit_AUC_mod_int3 <- lm(log(AUC) ~ dose_g_per_kg*site + route, order_0_df)
-#fit_AUC_mod_int4 <- lm(log(AUC) ~ dose_g_per_kg*site*route, order_0_df)
+fit_AUC_mod_int <- lm(log(AUC) ~ dose_g_per_kg*route + site, order_0_df)
+# fit_AUC_mod_int2 <- lm(log(AUC) ~ dose_g_per_kg + route*site, order_0_df)
+# fit_AUC_mod_int3 <- lm(log(AUC) ~ dose_g_per_kg*site + route, order_0_df)
+# fit_AUC_mod_int4 <- lm(log(AUC) ~ dose_g_per_kg*site*route, order_0_df)
 
 
-summary(fit_AUC_mod_int1)
-#summary(fit_AUC_submod)
+summ(fit_AUC_mod_int, confint = TRUE, digits = 3)
 
-cat("\n===============================================================\n")
+# summary(fit_AUC_mod_int)
+# summary(fit_AUC_submod)
 
-anova(fit_AUC_mod, fit_AUC_mod_int1)
-cat("\n===============================================================\n")
-anova(fit_AUC_mod, fit_AUC_mod_int2)
-cat("\n===============================================================\n")
-anova(fit_AUC_mod, fit_AUC_mod_int3)
-cat("\n===============================================================\n")
+#cat("\n===============================================================\n")
+
+#anova(fit_AUC_mod, fit_AUC_mod_int1)
+#cat("\n===============================================================\n")
+#anova(fit_AUC_mod, fit_AUC_mod_int2)
+#cat("\n===============================================================\n")
+#anova(fit_AUC_mod, fit_AUC_mod_int3)
+#cat("\n===============================================================\n")
 #anova(fit_AUC_mod, fit_AUC_mod_int4)
 ```
+```{r, fig.width=8, fig.height=10}
+check_model(fit_AUC_mod_int)
+```
+
+
+```{r}
+ggpredict(fit_AUC_mod_int, terms = c("dose_g_per_kg", "route", "site")) %>% plot(show_data = TRUE, log_y = FALSE, jitter = .01) + labs(subtitle = "Adjusted R-squared:  0.7995")
+```
+```{r, fig.width=7, fig.height=5, dpi=300}
+plot_coefs(fit_AUC_mod_int, omit.coefs = NULL, scale = TRUE, ci_level = 0.95, plot.distributions = FALSE, inner_ci_level = .1, colors = "CUD") + labs(title = "Beta coeffecients with 95% CI")
+```
+
 
 **Наблюдения:**
 
@@ -1148,4 +1180,4 @@ cat("\n===============================================================\n")
 
 **Выводы:**
 
-1. После включения `sex` в модель меняется `Intercept` и коэффициент при `dose_g_per_kg`.
+1. Включение взаимодействия между `dose_g_per_kg` и `route` увеличивает $R^2$.
