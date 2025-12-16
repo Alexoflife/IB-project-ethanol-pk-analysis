@@ -1174,27 +1174,19 @@ check_model(fit_AUC_mod_int)
 ```{r}
 ggpredict(fit_AUC_mod_int, terms = c("dose_g_per_kg", "route", "site")) %>% plot(show_data = TRUE, log_y = FALSE, jitter = .01) + labs(subtitle = "Adjusted R-squared:  0.7995")
 ```
+
 ```{r, fig.width=7, fig.height=5, dpi=300}
 plot_coefs(fit_AUC_mod_int, omit.coefs = NULL, scale = TRUE, ci_level = 0.95, plot.distributions = FALSE, inner_ci_level = .1, colors = "CUD") + labs(title = "Regression coeffecients with 95% CI")
 ```
+
 ```{r}
-plot_model(fit_AUC_mod_int, show.values = TRUE, value.offset = 0.3,  axis.labels = c("Dose (g/kg)", "Route (PO)", "Blood sampling (venous)", "Dose (g/kg) x Route (PO)"), title = "Regression coeffecients with 95% CI") +
+plot_model(fit_AUC_mod_int, show.values = TRUE,  show.intercept = TRUE, value.offset = 0.3,  axis.labels = c("Dose (g/kg)", "Route (PO)", "Blood sampling (venous)", "Dose (g/kg) x Route (PO)", "Intercept"), title = "Regression coeffecients with 95% CI") +
   theme_nice()
 ```
 
-
-**Наблюдения:**
-
-1. Существует однозначная зависимость между переменными `site` и `food` --- если у исследуемоего субъекта брали кровь после еды, то брали только из вены. Одну из переменных необходимо исключить из модели.
-
-2. Появляется однозначная зависимость между значениями  `dose_g_per_kg` 0.57 и `route` IV после исключения NA по `age`.
-
-3. Включённые в модель переменные `dose_g_per_kg`, `route`,  `site` имеют стат значимое влияние на `AUC`.
-
-
 **Выводы:**
 
-1. Включение взаимодействия между `dose_g_per_kg` и `route` увеличивает $R^2$.
+1. Включение взаимодействия между `dose_g_per_kg` и `route` увеличивает $R^2$ примерно на 3%.
 
 
 ## Построение регрессионных моделей по Tmax
@@ -1228,7 +1220,7 @@ ggResidpanel::resid_panel(t_max_full_m, plots = c("lev", "cookd"))
 ```{r}
 t_max_coef <- coeftest(t_max_full_m, vcov. = vcovHC, type = "HC3") %>%
 broom::tidy(conf.int = TRUE) %>% 
-  mutate(term = c("Intersept",
+  mutate(term = c("Intercept",
                   "Dose (g/kg)",
                   "Food status: \"Fed\"",
                   "Peroral route",
@@ -1264,7 +1256,7 @@ ggplot(t_max_prediction_plot, aes(x = .fitted, y = Tmax)) +
 t_max_coef %>% 
 ggplot(aes(y = `Variable`)) +
   geom_point(aes(x = `β estimate`), size = 3) +
-  geom_errorbar(aes(xmin = conf.low, xmax = conf.high), width = 0.5) +
+  geom_errorbar(aes(xmin = `95%CI low`, xmax = `95%CI high`), width = 0.5) +
   geom_vline(xintercept = 0, color = "darkred") +
   labs(title = "Coefficients and 95%CI in Tmax model")
 ```
