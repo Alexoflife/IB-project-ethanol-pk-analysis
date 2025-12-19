@@ -755,11 +755,9 @@ pk_num <- order_0_df %>%
          `β` = Beta,
          `Dose` = dose_g_per_kg)
 
+# cor_mat <- cor(pk_num, use = "pairwise.complete.obs", method = "pearson")
 
-cor_mat <- cor(pk_num, use = "pairwise.complete.obs")
-
-cor_mat %>% 
-  ggcorr(., label = TRUE, hjust = 0.78)
+ggcorr(pk_num, method = c("pairwise.complete.obs", "pearson"), label = TRUE, hjust = 0.78)
   
 ```
 Проверяем гипотезы о различиях групп по категориям food и site 
@@ -841,6 +839,12 @@ t_max_full_m <- lm(Tmax ~ dose_g_per_kg * food + route + wt_kg, data = order_0_d
 summary(t_max_full_m)
 ```
 
+```{r, fig.height=10, fig.width=10}
+autoplot(t_max_full_m)
+```
+
+
+
 ```{r, fig.width=20, fig.height=15}
 check_model(t_max_full_m)
 ```
@@ -900,8 +904,14 @@ ggplot(aes(y = `Variable`)) +
 ```
 
 ```{r}
-ggpredict(t_max_full_m, terms = c("dose_g_per_kg", "route")) %>% plot(show_data = TRUE, log_y = FALSE, jitter = .01) + labs(subtitle = "Adjusted R-squared:  0.497")
+ggpredict(t_max_full_m, terms = c("dose_g_per_kg", "route"), ci_level = 0) %>% plot(show_data = TRUE, log_y = FALSE, jitter = .01) + labs(subtitle = "Adjusted R-squared:  0.497")
 ```
+
+```{r, fig.height=8, fig.width=8, dpi=300}
+plot_model(t_max_full_m, show.values = TRUE,  show.intercept = TRUE, value.offset = 0.3, vcov.fun = vcovHC, vcov.args = "HC3", axis.labels = c("Dose (g per kg) x food status: \"Fed\"", "Weight, kg", "Route (PO)", "Food status: \"Fed\"", "Dose (g per kg)", "Intercept"), title = "Regression coeffecients with 95% CI") +
+  theme_nice()
+```
+
 
 ## Cmax
 
