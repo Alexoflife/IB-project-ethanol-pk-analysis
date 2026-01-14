@@ -1398,3 +1398,20 @@ resid_panel(Cmax_lm2_v2, plots = c("qq", "hist"))
 # Диагностика на наличие выбросов и вилятельных наблюдений с помощью графика  Residuals vs Leverage и графика расстояний Кука
 resid_panel(Cmax_lm2_v2, plots = c("lev", "cookd"))
 ```
+# Данные по крысам
+```{r rat data}
+Eriksson_1977 <- read_csv("data/raw/Eriksson-1977.csv")
+
+Kozawa_2007 <- read_csv("data/raw/Kozawa-2007.csv")
+
+rat_data <- bind_rows(Kozawa_2007,Eriksson_1977) %>% mutate(time_min = time_h * 60) %>% mutate(wt_kg = BW_g/1000)
+
+
+
+```
+
+```{r}
+
+
+```
+
