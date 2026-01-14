@@ -171,7 +171,7 @@ Eriksson_1977 <- Eriksson_1977 %>%
 
 
 ```{r rat_data_merge}
-rat_data <- rbind(Kozawa_2007, Eriksson_1977)
+# rat_data <- rbind(Kozawa_2007, Eriksson_1977)
 ```
 
 
@@ -616,6 +616,14 @@ Kozawa_2007_pk <- Kozawa_2007 %>%
 
 Kozawa_2007_pk <- Kozawa_2007_pk %>% 
   select(-Kel, -C_0_1_order, -V_d_1_order)
+
+Kozawa_2007_pk <- Kozawa_2007 %>% 
+  select(-c(time_min, conc_g_per_L)) %>% 
+  group_by(number) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  right_join(Kozawa_2007_pk) %>% 
+  select(-number)
 ```
 
 
@@ -635,6 +643,14 @@ Eriksson_1977_pk <- Eriksson_1977_pk %>%
   select(-Kel, -C_0_1_order, -V_d_1_order)
 
 # для двух концентраций не хватает точек, чтобы чтобы вычислить beta
+
+Eriksson_1977_pk <- Eriksson_1977 %>% 
+  select(-c(time_min, conc_g_per_L)) %>% 
+  group_by(number) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  right_join(Eriksson_1977_pk) %>% 
+  select(-number)
 ```
 
 # 4. Объединение датасетов
