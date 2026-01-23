@@ -68,6 +68,19 @@ standard_theme <- theme_bw() +
     strip.text = element_text(size = 22))
 theme_set(standard_theme)
 set_flextable_defaults(table.layout = "autofit")
+
+flex_default_fun <- function(x) {
+  x %>% 
+  theme_box() %>%
+  font(fontname = "Times New Roman", part = "all") %>% 
+  fontsize(size = 13, part = "header") %>% 
+  fontsize(size = 12, part = "body") %>% 
+  flextable::align(
+  i = 1,
+  j = NULL,
+  align = "center",
+  part = "header")
+}
 ```
 
 # 1. Унификация данных
@@ -390,27 +403,31 @@ Wilkinson_PO_clean %>%
 
 ```{r, fig.height=12, fig.width=15, dpi=300}
 ggplot(Kozawa_2007, aes(x = time_min, y = conc_g_per_L)) +
-  geom_line(aes(group = number)) +
+  geom_line(aes(group = dose_g_per_kg,
+                color = dose_g_per_kg %>% as.factor())) +
   scale_y_continuous(breaks = seq(0, 3.6, 0.2)) +
   scale_x_continuous(breaks = seq(0, 500, 25)) +
   labs(title = "Зависимость концентрации от времени",
        subtitle = "Усредненные данные",
        caption = "По данным Kozawa-2007",
        x = "Время, мин",
-       y = "Концентрация, г/л")
+       y = "Концентрация, г/л",
+       color = "Доза, г/кг")
 ```
 
 
 ```{r, fig.height=12, fig.width=15, dpi=300}
 ggplot(Eriksson_1977, aes(x = time_min, y = conc_g_per_L)) +
-  geom_line(aes(group = number)) +
+  geom_line(aes(group = dose_g_per_kg,
+                color = dose_g_per_kg %>% as.factor())) +
   scale_y_continuous(breaks = seq(0, 1.8, 0.1)) +
   scale_x_continuous(breaks = seq(0, 300, 30)) +
   labs(title = "Зависимость концентрации от времени",
        subtitle = "Усредненные данные",
        caption = "По данным Eriksson-1977",
        x = "Время, мин",
-       y = "Концентрация, г/л")
+       y = "Концентрация, г/л",
+       color = "Доза, г/кг")
 ```
 
 # 3. Расчет ФК параметров
@@ -695,6 +712,150 @@ order_1_df <- main_df %>% filter(Cmax < 0.23)
 
 ```{r rat-join}
 rat_data_pk <- rbind(Kozawa_2007_pk, Eriksson_1977_pk)
+```
+
+# Аллометрическое скалирование на данных крыс
+
+Стандартные константы для формулы
+
+## Vd
+
+```{r}
+rat_data_pk <- rat_data_pk %>% 
+  mutate(V_max_0_order = Beta * 60 * V_d_0_order) %>% # г / кг / час
+  relocate(V_max_0_order, .after = V_d_0_order)
+
+V_allom_scale <- function(V_rat, # в л, абсолютный объём
+                          rat_weight, # в кг
+                          human_weight = 1,
+                          n = 1) # в кг, по умолчанию считаем на 1 кг
+{
+  V_human = V_rat * (human_weight / rat_weight) ^ n
+  return(V_human)
+}
+
+rat_data_pk %>%  
+  mutate(Vd_abs_rat = (V_d_0_order * BW_g / 1000), # L
+    Vd_abs_hum = V_allom_scale(Vd_abs_rat, BW_g / 1000, 72),
+    V_d_0_order = V_d_0_order) %>% 
+  select(study_id, dose_g_per_kg, route, BW_g, V_d_0_order, Vd_abs_rat, Vd_abs_hum) %>% 
+  mutate(across(where(is.numeric), ~round(.x, 2))) %>% 
+  rename("Исследование" = study_id,
+         "Доза, г / л" = dose_g_per_kg,
+         "Путь введения" = route,
+         "Масса крысы, г" = BW_g,
+         "Vd крысы, л / кг" = V_d_0_order,
+         "Vd крысы абс., л" = Vd_abs_rat,
+         "Vd человека абс., л" = Vd_abs_hum) %>% 
+  flextable() %>% 
+  flex_default_fun() %>% 
+  add_header_row(values = "Аллометрическое шкалирование Vd", colwidths = 7)
+
+```
+
+```{r, message=FALSE}
+order_0_df %>% 
+  filter(!is.na(wt_kg) & !is.na(V_d_0_order)) %>% 
+  mutate(Vd_abs = V_d_0_order * wt_kg) %>% 
+  select(study_id, subject_id, dose_g_per_kg, route, wt_kg, V_d_0_order, Vd_abs) %>% 
+  group_by(study_id, route) %>% 
+  summarise(across(where(is.numeric), ~mean(.x))) %>% 
+  mutate(across(where(is.numeric), ~round(.x, 2))) %>% 
+  rename("Исследование" = study_id,
+         "Доза, г / л" = dose_g_per_kg,
+         "Пусть введения" = route,
+         "Вес, кг" = wt_kg,
+         "Vd человека, л / кг" = V_d_0_order,
+         "Vd человека абс., л" = Vd_abs) %>% 
+  flextable() %>% 
+  flex_default_fun() %>% 
+  add_header_row(values = "Усреднённые данные по Vd человека", colwidths = 6)
+```
+
+## Vmax
+
+```{r}
+# V_max_0_order
+
+rat_data_pk %>%  
+  mutate(Vmax_abs_rat = (V_max_0_order * BW_g / 1000), # g/h
+    Vmax_abs_hum = V_allom_scale(Vmax_abs_rat, BW_g / 1000, 72, n = 0.75)) %>% 
+  filter(!is.na(V_max_0_order)) %>% 
+  select(study_id, dose_g_per_kg, route, BW_g, V_max_0_order, Vmax_abs_rat, Vmax_abs_hum) %>% 
+  mutate(across(where(is.numeric), ~round(.x, 2))) %>% 
+  rename("Исследование" = study_id,
+         "Доза, г / л" = dose_g_per_kg,
+         "Путь введения" = route,
+         "Масса крысы, г" = BW_g,
+         "Vmax крысы, г / кг / час" = V_max_0_order,
+         "Vmax крысы абс., г / час" = Vmax_abs_rat,
+         "Vmax человека абс., г / час" = Vmax_abs_hum) %>% 
+  flextable() %>% 
+  flex_default_fun() %>% 
+  add_header_row(values = "Аллометрическое шкалирование Vmax", colwidths = 7) %>% 
+  merge_v(j = c(1, 3, 4))
+  
+```
+
+```{r, message=FALSE}
+order_0_df %>% 
+  filter(!is.na(wt_kg) & !is.na(V_d_0_order)) %>% 
+  mutate(Vmax = Beta * 60 * V_d_0_order) %>% 
+  mutate(Vmax_abs = Vmax * wt_kg) %>% 
+  select(study_id, subject_id, dose_g_per_kg, route, wt_kg, Vmax, Vmax_abs) %>% 
+  group_by(study_id, route) %>% 
+  summarise(across(where(is.numeric), ~mean(.x))) %>% 
+  mutate(across(where(is.numeric), ~round(.x, 2))) %>% 
+  rename("Исследование" = study_id,
+         "Доза, г / л" = dose_g_per_kg,
+         "Путь введения" = route,
+         "Вес, кг" = wt_kg,
+         "Vmax человека, г / кг / час" = Vmax,
+         "Vmax человека абс., г / час" = Vmax_abs) %>% 
+  flextable() %>% 
+  flex_default_fun() %>% 
+  add_header_row(values = "Усреднённые данные по Vmax человека", colwidths = 6)
+```
+
+## Beta
+
+```{r}
+# Beta
+
+rat_data_pk %>%  
+  mutate(Beta = Beta * 60, # g/L/h
+         Beta_hum = V_allom_scale(Beta, BW_g / 1000, 72, n = 0.75)) %>% 
+  filter(!is.na(Beta)) %>% 
+  select(study_id, dose_g_per_kg, route, BW_g, Beta, Beta_hum) %>% 
+  mutate(across(where(is.numeric), ~round(.x, 2))) %>% 
+  rename("Исследование" = study_id,
+         "Доза, г / л" = dose_g_per_kg,
+         "Путь введения" = route,
+         "Масса крысы, г" = BW_g,
+         "Beta крысы, г / л / час" = Beta,
+         "Beta человека абс., г / л / час" = Beta_hum) %>% 
+  flextable() %>% 
+  flex_default_fun() %>% 
+  add_header_row(values = "Аллометрическое шкалирование Beta", colwidths = 6)
+  
+```
+
+```{r, message=FALSE}
+order_0_df %>% 
+  filter(!is.na(wt_kg) & !is.na(V_d_0_order)) %>% 
+  mutate(Beta = Beta * 60 * V_d_0_order) %>% 
+  select(study_id, subject_id, dose_g_per_kg, route, wt_kg, Beta) %>% 
+  group_by(study_id, route) %>% 
+  summarise(across(where(is.numeric), ~mean(.x))) %>% 
+  mutate(across(where(is.numeric), ~round(.x, 2))) %>% 
+  rename("Исследование" = study_id,
+         "Доза, г / л" = dose_g_per_kg,
+         "Путь введения" = route,
+         "Вес, кг" = wt_kg,
+         "Beta человека, г / л / час" = Beta) %>% 
+  flextable() %>% 
+  flex_default_fun() %>% 
+  add_header_row(values = "Усреднённые данные по Beta человека", colwidths = 5)
 ```
 
 
