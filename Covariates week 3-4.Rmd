@@ -1513,7 +1513,10 @@ resid_panel(Cmax_lm2_v2, plots = c("lev", "cookd"))
 
 # Аллометрическое шкалирование с использованием фармакокинетических параметров крыс
 
-```{r rat Vmax}
+## Observed - Predicted (Wilkinson IV)
+
+```{r rat} 
+# Перевод в другую размерность
 rat_data_pk <-  rat_data_pk %>% 
   mutate(V_max_0_order = Beta * 60 * V_d_0_order,
          BW_g = BW_g / 1000) %>%
@@ -1521,7 +1524,7 @@ rat_data_pk <-  rat_data_pk %>%
   relocate(V_max_0_order, .after = V_d_0_order)
 ```
 
-```{r allometric func}
+```{r allometric_func}
 allom_scale <- function(V_rat, # в л, абсолютный объём
                         rat_weight, # в кг
                         human_weight = 1,
@@ -1532,14 +1535,33 @@ allom_scale <- function(V_rat, # в л, абсолютный объём
 }
 ```
 
-
 ```{r allometric}
+# Подготовка датасета для аллометрии
 allometric <- main_df %>% 
   filter(!is.na(wt_kg)) %>% 
   select(study_id, subject_id, dose_g_per_kg, route, 
          Beta, V_d_0_order, wt_kg) %>% 
   mutate(V_max = Beta * V_d_0_order * 60)
 
+# Только по датасету Вилкиксон (человеческие дозы 0,5 - 0,62)
+allometric_IV_Wilk <- allometric %>% 
+  filter(route == "IV",
+         study_id == "Wilkinson-1976-IV") %>% 
+  crossing(rat_data_pk %>% filter(dose_g_per_kg == 0.5) %>% 
+             mutate(Vd_abs_rat = (V_d_0_order * wt_kg)) %>% 
+             rename_with(~ paste0("rat_", .x))) %>% 
+  mutate(Vd_classic = allom_scale(rat_Vd_abs_rat, rat_wt_kg, wt_kg),
+         Vd_matsumoto = allom_scale(rat_Vd_abs_rat, rat_wt_kg, wt_kg, 0.932),
+         Beta_classic = allom_scale(rat_Beta, rat_wt_kg, wt_kg, 0.75),
+         Beta_matsumoto = allom_scale(rat_Beta, rat_wt_kg, wt_kg, 0.708),
+         Vmax_classic = allom_scale(rat_V_max_0_order, rat_wt_kg, wt_kg, 0.75),
+         Vmax_matsumoto = allom_scale(rat_V_max_0_order, rat_wt_kg, wt_kg, 0.708))
+```
+
+## IV allometric scaling (main df)
+
+```{r allometric_IV}
+# Датасет на все внутривенные значения
 allometric_IV <- allometric %>% 
   filter(route == "IV") %>% 
   crossing(rat_data_pk %>% filter(dose_g_per_kg == 0.5) %>% 
@@ -1551,10 +1573,10 @@ allometric_IV <- allometric %>%
          Beta_matsumoto = allom_scale(rat_Beta, rat_wt_kg, wt_kg, 0.708),
          Vmax_classic = allom_scale(rat_V_max_0_order, rat_wt_kg, wt_kg, 0.75),
          Vmax_matsumoto = allom_scale(rat_V_max_0_order, rat_wt_kg, wt_kg, 0.708))
-  
 ```
 
-```{r main dose IV}
+```{r main_dose_IV}
+# Наблюдаемые значения и средняя доза для выборки
 main_df_IV <- main_df %>% 
   filter(route == "IV") %>% 
   mutate(Vd_obs = V_d_0_order * wt_kg,
@@ -1564,7 +1586,8 @@ main_df_IV <- main_df %>%
 mean(main_df_IV$dose_g_per_kg)
 ```
 
-```{r Vd visual IV}
+```{r Vd_visual_IV}
+# Объем распределения
 Vd_vis_IV <- bind_rows(
   main_df_IV %>% transmute(value = Vd_obs, model = "Observed"),
   allometric_IV %>% transmute(value = Vd_classic, model = "Allometric classic"),
@@ -1580,10 +1603,10 @@ ggplot(Vd_vis_IV, aes(x = model, y = value)) +
     title = "Vd, allometric scaling using different allometric scale exponents, IV route of administration",
     subtitle = "Mean human dose = 0.49 g/kg, rat dose = 0.5 g/kg"
   )
-
 ```
 
-```{r Beta visual IV}
+```{r Beta_visual_IV}
+# Бета
 Beta_vis_IV <- bind_rows(
   main_df_IV %>% transmute(value = Beta_obs, model = "Observed"),
   allometric_IV %>% transmute(value = Beta_classic, model = "Allometric classic"),
@@ -1595,14 +1618,15 @@ ggplot(Beta_vis_IV, aes(x = model, y = value)) +
   theme_bw()+
   labs(
     x = "Used allometric scale exponent",
-    y = "Beta", 
+    y = "Beta, g/L/hour", 
     title = "Beta, allometric scaling using different allometric scale exponents, IV route of administration",
     subtitle = "Mean human dose = 0.49 g/kg, rat dose = 0.5 g/kg"
   )
 
 ```
 
-```{r Vmax visual IV}
+```{r Vmax_visual_IV}
+# Vmax
 Vmax_vis_IV <- bind_rows(
   main_df_IV %>% transmute(value = Vmax_obs, model = "Observed"),
   allometric_IV %>% transmute(value = Vmax_classic, model = "Allometric classic"),
@@ -1614,14 +1638,16 @@ ggplot(Vmax_vis_IV, aes(x = model, y = value)) +
   theme_bw()+
   labs(
     x = "Used allometric scale exponent",
-    y = "Vmax", 
+    y = "Vmax, g/hour", 
     title = "Vmax, allometric scaling using different allometric scale exponents, IV route of administration",
     subtitle = "Mean human dose = 0.49 g/kg, rat dose = 0.5 g/kg"
   )
-
 ```
 
-```{r allometric PO dose 750 mg}
+## PO allometric scaling (750 mg per kg)
+
+```{r allometric_PO_750_mg}
+# Шкалированные значения
 allometric_PO <- allometric %>% 
   filter(route == "PO") %>% 
   crossing(rat_data_pk %>% filter(dose_g_per_kg == 0.75) %>% 
@@ -1632,7 +1658,8 @@ allometric_PO <- allometric %>%
   
 ```
 
-```{r main dose PO}
+```{r main_dose_PO}
+# Подготовка основного датасета
 main_df_PO <- main_df %>% 
   filter(route == "PO") %>% 
   mutate(Vd_obs = V_d_0_order * wt_kg,
@@ -1642,7 +1669,8 @@ main_df_PO <- main_df %>%
 mean(main_df_PO$dose_g_per_kg)
 ```
 
-```{r Vd visual PO dose 750 mg}
+```{r Vd_visual_PO_750_mg}
+# Объем распределения
 Vd_vis_PO <- bind_rows(
   main_df_PO %>% transmute(value = Vd_obs, model = "Observed"),
   allometric_PO %>% transmute(value = Vd_classic, model = "Allometric classic"),
@@ -1660,7 +1688,10 @@ ggplot(Vd_vis_PO, aes(x = model, y = value)) +
   )
 ```
 
-```{r allometric PO dose 3 g}
+## PO allometric scaling (3000 mg per kg)
+
+```{r allometric_PO_3_g}
+# Шкалирование
 allometric_PO_3 <- allometric %>% 
   filter(route == "PO") %>% 
   crossing(rat_data_pk %>% filter(dose_g_per_kg == 3) %>% 
@@ -1674,7 +1705,8 @@ allometric_PO_3 <- allometric %>%
          Vmax_matsumoto = allom_scale(rat_V_max_0_order, rat_wt_kg, wt_kg, 0.708))
 ```
 
-```{r Vd visual PO dose 3 g}
+```{r Vd_visual_PO_3_g}
+# Vd
 Vd_vis_PO_3 <- bind_rows(
   main_df_PO %>% transmute(value = Vd_obs, model = "Observed"),
   allometric_PO_3 %>% transmute(value = Vd_classic, model = "Allometric classic"),
@@ -1692,7 +1724,8 @@ ggplot(Vd_vis_PO, aes(x = model, y = value)) +
   )
 ```
 
-```{r Beta visual PO dose 3 g}
+```{r Beta_visual_PO_3_g}
+# Beta
 Beta_vis_PO_3 <- bind_rows(
   main_df_PO %>% transmute(value = Beta_obs, model = "Observed"),
   allometric_PO_3 %>% transmute(value = Beta_classic, model = "Allometric classic"),
@@ -1704,13 +1737,14 @@ ggplot(Vd_vis_PO, aes(x = model, y = value)) +
   theme_bw()+
   labs(
     x = "Used allometric scale exponent",
-    y = "Beta", 
+    y = "Beta, g/L/hour", 
     title = "Beta, allometric scaling using different allometric scale exponents, PO route of administration",
     subtitle = "Mean human dose = 0.60 g/kg, rat dose = 3.00 g/kg"
   )
 ```
 
-```{r Vmax visual PO dose 3 g}
+```{r Vmax_visual_PO_3_g}
+# Vmax
 Vmax_vis_PO_3 <- bind_rows(
   main_df_PO %>% transmute(value = Vmax_obs, model = "Observed"),
   allometric_PO_3 %>% transmute(value = Vmax_classic, model = "Allometric classic"),
@@ -1722,7 +1756,7 @@ ggplot(Vd_vis_PO, aes(x = model, y = value)) +
   theme_bw()+
   labs(
     x = "Used allometric scale exponent",
-    y = "Vmax", 
+    y = "Vmax, g/hour", 
     title = "Vmax, allometric scaling using different allometric scale exponents, PO route of administration",
     subtitle = "Mean human dose = 0.60 g/kg, rat dose = 3.00 g/kg"
   )
