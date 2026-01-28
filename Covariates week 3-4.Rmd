@@ -1205,7 +1205,7 @@ summ(fit_AUC_mod_with_food, confint = TRUE, digits = 3)
 
 ```{r, fig.width=6, fig.height=4}
 # строим график с ковариатами  и их ДИ
-plot_model(fit_AUC_mod_with_food, show.values = TRUE,  show.intercept = TRUE, value.offset = 0.3, axis.labels = c("Dose (g per kg) x Route (PO)", "Food status (fed)", "Route (PO)", "Dose (g per kg)","Intercept")) +
+p <- plot_model(fit_AUC_mod_with_food, show.values = TRUE,  show.intercept = TRUE, value.offset = 0.3, axis.labels = c("Dose (g per kg) x Route (PO)", "Food status (fed)", "Route (PO)", "Dose (g per kg)","Intercept")) +
   geom_hline(yintercept = 0, color = "gray3", size = 0.5) +
   labs(title = "Regression coefficients for AUC with 95% CI", 
        subtitle = "log(AUC) ~ dose_g_per_kg*route + food") +
@@ -1322,7 +1322,7 @@ order_0_df_factor <- order_0_df %>%
     site = factor(site)
   )
 
-Cmax_lm2_v1 <- lm(log(Cmax) ~ dose_g_per_kg + route + food + site, data = order_0_df_factor)
+Cmax_lm2_v1 <- lm(log(Cmax) ~ dose_g_per_kg + route + food + site, data = order_0_df)
 
 summary(Cmax_lm2_v1)
 check_model(Cmax_lm2_v1)
@@ -1351,7 +1351,7 @@ order_0_df_factor <- order_0_df %>%
     sex = factor(sex)
   )
 
-Cmax_lm2_v2 <- lm(log(Cmax) ~ dose_g_per_kg + route + food + sex + age, data = order_0_df_factor)
+Cmax_lm2_v2 <- lm(log(Cmax) ~ dose_g_per_kg + route + food + sex + age, data = order_0_df)
 
 summary(Cmax_lm2_v2)
 check_model(Cmax_lm2_v1)
@@ -1410,7 +1410,7 @@ log(Cmax) ~ dose_g_per_kg + route + food + site + sex + age + bsa_m2 + lbm_kg
 
 ```{r Cmax lm2 v3, fig.height=16, fig.width=20}
 
-Cmax_lm2_v3 <- lm(log(Cmax) ~ dose_g_per_kg + age + bsa_m2 + lbm_kg, data = order_0_df_factor)
+Cmax_lm2_v3 <- lm(log(Cmax) ~ dose_g_per_kg + age + bsa_m2 + lbm_kg, data = order_0_df)
 
 summary(Cmax_lm2_v2)
 #check_model(Cmax_lm2_v1)
@@ -1432,7 +1432,7 @@ resid_panel(Cmax_lm2_v2, plots = c("lev", "cookd"))
 ## Beta
 
 ```{r}
-fit_Beta_1 <- lm(log(Beta) ~ log(dose_g_per_kg) * route + food, data = order_0_df_factor)
+fit_Beta_1 <- lm(Beta ~ dose_g_per_kg * route + food, data = order_0_df)
 
 summary(fit_Beta_1)
 ```
@@ -1455,10 +1455,23 @@ resid_panel(fit_Beta_1, plots = c("lev", "cookd"))
 ggpredict(fit_Beta_1, terms = c("dose_g_per_kg", "route"), ci_level = 0) %>% plot(show_data = TRUE, log_y = FALSE, jitter = .01) + labs(subtitle = "Adjusted R-squared:  0.5671") + xlab("Dose (g per kg)")
 ```
 
-```{r, fig.width = 6, fig.height = 6}
-plot_model(fit_Beta_1, show.values = TRUE,  show.intercept = TRUE, value.offset = 0.3,  axis.labels = c("Dose (g per kg) x Route (PO)", "food (fed)","Route (PO)", "Dose (g per kg)", "Intercept")) +
-labs(title = "Regression coefficients for Beta with 95% CI", 
-       subtitle = "log(Cmax) ~ dose_g_per_kg + route + food + sex + age") +
+```{r, fig.width = 4, fig.height = 4}
+plot_beta <- plot_model(fit_Beta_1, show.values = TRUE,  show.intercept = TRUE, value.offset = 0.5, digits = 3,   axis.labels = c("Dose (g per kg) x Route (PO)", "food (fed)","Route (PO)", "Dose (g per kg)", "Intercept")) +
+    geom_hline(yintercept = 0, color = "gray3", size = 0.5) +
+labs(title = "Regression coefficients \n for Beta with 95% CI", 
+       subtitle = "Beta ~ dose_g_per_kg * route + feed") +
+  scale_y_continuous(limits = c(-0.015, 0.015)) +
   theme_nice()+
   theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
+
+plot_beta
+
+summary(fit_Beta_1)
+
+d <- plot_beta$data
+
+d$ci_label <- sprintf(
+  "[%.4f; %.4f]",
+  d$conf.low,
+  d$conf.high)
 ```
