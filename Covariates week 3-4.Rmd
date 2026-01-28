@@ -1474,25 +1474,25 @@ check_model(C_0_0_lm3_v1)
 ## Vd
 
 ```{r basic_lms}
-fit_Vd_1 <- lm(log(V_d_0_order) ~ route + food + site, data = order_0_df_factor)
+fit_Vd_1 <- lm(V_d_0_order ~ route + food + site, data = order_0_df_factor)
 
 summary(fit_Vd_1)
 
 cat("\n===============================================================\n")
 
-fit_Vd_3 <- lm(log(V_d_0_order) ~ route, data = order_0_df_factor)
+fit_Vd_3 <- lm(V_d_0_order ~ route, data = order_0_df_factor)
 
 summary(fit_Vd_3)
 
 cat("\n===============================================================\n")
 
-fit_Vd_4 <- lm(log(V_d_0_order) ~ route + site, data = order_0_df_factor)
+fit_Vd_4 <- lm(V_d_0_order ~ route + site, data = order_0_df_factor)
 
 summary(fit_Vd_4)
 
 cat("\n===============================================================\n")
 
-fit_Vd_5 <- lm(log(V_d_0_order) ~ route + food, data = order_0_df_factor)
+fit_Vd_5 <- lm(V_d_0_order ~ route + food, data = order_0_df_factor)
 
 summary(fit_Vd_5)
 
@@ -1506,7 +1506,7 @@ anova(fit_Vd_1, fit_Vd_5)
 ```
 
 ```{r}
-fit_Vd_3_sub <- lm(log(V_d_0_order) ~ 1,  data = order_0_df_factor)
+fit_Vd_3_sub <- lm(V_d_0_order ~ 1,  data = order_0_df_factor)
 
 anova(fit_Vd_3, fit_Vd_3_sub)
 ```
@@ -1516,14 +1516,14 @@ check_model(fit_Vd_3)
 ```
 
 ```{r}
-fit_Vd_3_add <- lm(log(V_d_0_order) ~ route + wt_kg * sex, data = order_0_df_factor)
-fit_Vd_3_add2 <- lm(log(V_d_0_order) ~ route + wt_kg + sex, data = order_0_df_factor)
+fit_Vd_3_add <- lm(V_d_0_order ~ route + wt_kg * sex, data = order_0_df_factor)
+fit_Vd_3_add2 <- lm(V_d_0_order ~ route + wt_kg + sex, data = order_0_df_factor)
 
 anova(fit_Vd_3_add, fit_Vd_3_add2)
 
 summary(fit_Vd_3_add2)
 
-fit_Vd <- lm(log(V_d_0_order) ~ wt_kg + sex, data = order_0_df_factor)
+fit_Vd <- lm(V_d_0_order ~ wt_kg + sex, data = order_0_df_factor)
 
 anova(fit_Vd, fit_Vd_3_add2)
 
@@ -1551,13 +1551,13 @@ plot_model(fit_Vd, show.values = TRUE,  show.intercept = TRUE, value.offset = 0.
 ## Beta
 
 ```{r}
-fit_Beta_1 <- lm(log(Beta) ~ log(dose_g_per_kg) * route, data = order_0_df_factor)
+fit_Beta_1 <- lm(Beta ~ dose_g_per_kg * route, data = order_0_df_factor)
 
 summary(fit_Beta_1)
 ```
 
 ```{r}
-fit_Beta_1_sub <- lm(log(Beta) ~ 1,  data = order_0_df_factor)
+fit_Beta_1_sub <- lm(Beta ~ 1,  data = order_0_df_factor)
 
 anova(fit_Beta_1, fit_Beta_1_sub)
 ```
