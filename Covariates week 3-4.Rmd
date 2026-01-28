@@ -1291,7 +1291,7 @@ ggplot(aes(y = `Variable`)) +
 
 log(Cmax) \~ dose_g_per_kg + route + food + site
 
-```{r Cmax lm2 v1, fig.height=16, fig.width=16}
+```{r Cmax-lm2-v1, fig.height=16, fig.width=16}
 order_0_df_factor <- order_0_df %>% 
   mutate(
     route = factor(route),
@@ -1381,7 +1381,7 @@ plot_model(Cmax_lm2_v2, show.values = TRUE,  show.intercept = TRUE, value.offset
 
 log(Cmax) ~ dose_g_per_kg + route + food + site + sex + age + bsa_m2 + lbm_kg
 
-```{r Cmax lm2 v3, fig.height=16, fig.width=20}
+```{r Cmax-lm2-v3, fig.height=16, fig.width=20}
 
 Cmax_lm2_v3 <- lm(log(Cmax) ~ dose_g_per_kg + age + bsa_m2 + lbm_kg, data = order_0_df_factor)
 
@@ -1403,7 +1403,7 @@ resid_panel(Cmax_lm2_v2, plots = c("lev", "cookd"))
 
 ## 6.4. Построение регрессионных моделей по C_0
 
-```{r С_0_0_order lm1 v1  }
+```{r С_0_0_order-lm1-v1}
 order_0_df
 C_0_0_lm1_v1 <- lm(log(C_0_0_order) ~ dose_g_per_kg + route + food + site + study_id, data = order_0_df)
 summary(C_0_0_lm1_v1)
@@ -1437,7 +1437,7 @@ dose_g_per_kg, route, study_id - High ≥ 10
 
 Попробую убрать лишние показатели, например в каждом исследовании 1 уровень food
 
-```{r r С_0_0_order lm1 var1.1 }
+```{r С_0_0_order-lm1-var1.1}
 C_0_0_lm1_v2 <- lm(log(C_0_0_order) ~ study_id, data = order_0_df)
 summary(C_0_0_lm1_v2)
 check_model(C_0_0_lm1_v2)
@@ -1446,7 +1446,7 @@ check_model(C_0_0_lm1_v2)
 Adjusted R-squared:  0.8277
 Убрали коллинеарность
 
-```{r С_0_0_order lm2 v1 v2  part1}
+```{r С_0_0_order-lm2-v1-v2-part1}
 order_0_df
 C_0_0_lm2_v1 <- lm(log(C_0_0_order) ~ study_id + sex+age , data = order_0_df)
 summary(C_0_0_lm2_v1) #sex и age зависит от study_id, нет смысла смотреть по всем данным
@@ -1461,14 +1461,21 @@ C_0_0_lm2_v2 <- lm(log(C_0_0_order) ~ log(dose_g_per_kg) + bsa_m2 + sex, data = 
 summary(C_0_0_lm2_v2)
 check_model(C_0_0_lm2_v2)
 ```
-Визуально выглядит лучше, но предикторов очень много, посчитал bmi и bsa, попробовал по всякому включить в модель
 
+изуально выглядит лучше, но предикторов очень много, посчитал bmi и bsa, попробовал по всякому включить в модель
 
-```{r С_0_0_order lm3 v1}
+```{r С_0_0_order-lm3-v1}
 C_0_0_lm3_v1 <- lm(log(C_0_0_order) ~ bsa_m2 , data = order_0_df)
 
 summary(C_0_0_lm3_v1)
 check_model(C_0_0_lm3_v1)
 ```
 
+# 7. Интерпретация моделей. Влияние факторов на ФК-параметры
+
+## 7.1 Влияние массы тела и площади поверхности тела на ФК-параметры
+
+```{r}
+
+```
 
