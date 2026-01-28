@@ -65,6 +65,18 @@ standard_theme <- theme_bw() +
     strip.text = element_text(size = 22))
 theme_set(standard_theme)
 set_flextable_defaults(table.layout = "autofit")
+flex_default_fun <- function(x) {
+  x %>% 
+  theme_box() %>%
+  font(fontname = "Times New Roman", part = "all") %>% 
+  fontsize(size = 13, part = "header") %>% 
+  fontsize(size = 12, part = "body") %>% 
+  flextable::align(
+  i = 1,
+  j = NULL,
+  align = "center",
+  part = "header")
+}
 ```
 
 # 1. Унификация данных
@@ -1379,26 +1391,26 @@ plot_model(Cmax_lm2_v2, show.values = TRUE,  show.intercept = TRUE, value.offset
 ```
 
 
-log(Cmax) ~ dose_g_per_kg + route + food + site + sex + age + bsa_m2 + lbm_kg
+log(Cmax) \~ age + lbm_kg
 
 ```{r Cmax-lm2-v3, fig.height=16, fig.width=20}
 
-Cmax_lm2_v3 <- lm(log(Cmax) ~ dose_g_per_kg + age + bsa_m2 + lbm_kg, data = order_0_df_factor)
+Cmax_lm2_v3 <- lm(Cmax ~ age + lbm_kg, data = order_0_df_factor)
 
-summary(Cmax_lm2_v2)
+summary(Cmax_lm2_v3)
 #check_model(Cmax_lm2_v1)
 
-broom::tidy(Cmax_lm2_v2, conf.int = TRUE)
+broom::tidy(Cmax_lm2_v3, conf.int = TRUE)
 #анализе линейности модели по графику Residuals vs Fitted 
-autoplot(Cmax_lm2_v2, 1, ncol = 1)
+autoplot(Cmax_lm2_v3, 1, ncol = 1)
 # Диагностика линейности пакетом ggResidpanel
-resid_panel(Cmax_lm2_v2, plots = "resid", smoother = TRUE)
+resid_panel(Cmax_lm2_v3, plots = "resid", smoother = TRUE)
 # Диагностика на гомоскедастичность остатков с помощью графика Scale-Location
-autoplot(Cmax_lm2_v2, 3, ncol = 1)
+autoplot(Cmax_lm2_v3, 3, ncol = 1)
 # Диагностика нормальности распределения остатков с помощью графика Normal Q-Q:
-resid_panel(Cmax_lm2_v2, plots = c("qq", "hist"))
+resid_panel(Cmax_lm2_v3, plots = c("qq", "hist"))
 # Диагностика на наличие выбросов и вилятельных наблюдений с помощью графика  Residuals vs Leverage и графика расстояний Кука
-resid_panel(Cmax_lm2_v2, plots = c("lev", "cookd"))
+resid_panel(Cmax_lm2_v3, plots = c("lev", "cookd"))
 ```
 
 ## 6.4. Построение регрессионных моделей по C_0
@@ -1471,7 +1483,7 @@ summary(C_0_0_lm3_v1)
 check_model(C_0_0_lm3_v1)
 ```
 
-## Vd
+## 6.5. Построение регрессионных моделей по Vd
 
 ```{r basic_lms}
 fit_Vd_1 <- lm(V_d_0_order ~ route + food + site, data = order_0_df_factor)
@@ -1553,7 +1565,7 @@ plot_model(fit_Vd, digits = 3, show.values = TRUE,  show.intercept = TRUE, value
   theme_nice()
 ```
 
-## Beta
+## 6.6. Построение регрессионных моделей по Beta
 
 ```{r}
 fit_Beta_1 <- lm(Beta ~ dose_g_per_kg * route, data = order_0_df_factor)
@@ -1588,7 +1600,103 @@ plot_model(fit_Beta_1, show.values = TRUE,  show.intercept = TRUE, value.offset 
 
 ## 7.1 Влияние массы тела и площади поверхности тела на ФК-параметры
 
-```{r}
+**Масса тела**
 
+```{r}
+ggpredict(fit_Vd, terms = c("wt_kg", "sex"), ci_level = 0.95) %>% plot(show_data = TRUE, log_y = FALSE, jitter = .01) +
+  labs(title = "Predicted values of Vd",
+    subtitle = "Adjusted R-squared:  0.2259",
+    color = "Sex") +
+  xlab("Weight (kg)") +
+  ylab("Vd (L / kg)")
 ```
 
+```{r}
+fit_Vd %>% broom::tidy(conf.int = TRUE) %>% filter(term == "wt_kg") %>% 
+  mutate(across(c(where(is.numeric), -p.value), ~round(.x, 3))) %>% 
+  mutate(p.value = gtsummary::style_pvalue(p.value),
+         term = "Масса тела, кг") %>% 
+  select(-statistic) %>% 
+  slice_tail(n = 1) %>% 
+  rename(
+    `Показатель` = term,
+    `Коэффициент (β)` = estimate,
+    `Стандартная ошибка` = std.error,
+    `P-value` = p.value,
+    `Нижн. гр. 95% ДИ` = conf.low,
+    `Верхн. гр. 95% ДИ` = conf.high
+  ) %>% 
+  flextable() %>%
+  add_header_row(., values = "Оценка коэффициента массы тела в модели Vd", colwidth = 6) %>% 
+  flex_default_fun()
+```
+
+**Площадь поверхности тела**
+
+```{r}
+ggpredict(lm(V_d_0_order ~ bsa_m2 + sex, data = order_0_df),
+          terms = c("bsa_m2", "sex"), ci_level = 0.95) %>% plot(show_data = TRUE, log_y = FALSE, jitter = .01) +
+  labs(title = "Predicted values of Vd",
+    subtitle = "Adjusted R-squared:  0.2433",
+    color = "Sex") +
+  xlab("Body Surface Area (m²)") +
+  ylab("Vd (L / kg)")
+```
+
+```{r}
+lm(V_d_0_order ~ bsa_m2 + sex, data = order_0_df) %>% 
+  broom::tidy(conf.int = TRUE) %>% filter(term == "bsa_m2") %>% 
+  mutate(across(c(where(is.numeric), -p.value), ~round(.x, 3))) %>% 
+  mutate(p.value = gtsummary::style_pvalue(p.value),
+         term = "Площадь поверхности тела, м²") %>% 
+  select(-statistic) %>% 
+  slice_tail(n = 1) %>% 
+  rename(
+    `Показатель` = term,
+    `Коэффициент (β)` = estimate,
+    `Стандартная ошибка` = std.error,
+    `P-value` = p.value,
+    `Нижн. гр. 95% ДИ` = conf.low,
+    `Верхн. гр. 95% ДИ` = conf.high
+  ) %>% 
+  flextable() %>%
+  add_header_row(., values = "Оценка коэффициента площади поверхности тела в модели Vd", colwidth = 6) %>% 
+  flex_default_fun()
+```
+
+**Сухая масса тела**
+
+```{r}
+ggpredict(Cmax_lm2_v3,
+          terms = c("lbm_kg", "age"), ci_level = 0.95) %>% plot(show_data = TRUE, log_y = FALSE, jitter = .01) +
+  labs(title = "Predicted values of Cmax",
+    subtitle = "Adjusted R-squared:  0.3328",
+    color = "Age") +
+  xlab("Lean Body Mass (kg)") +
+  ylab("Cmax (g/L)")
+```
+
+```{r}
+Cmax_lm2_v3 %>% 
+  broom::tidy(conf.int = TRUE) %>% filter(term == "lbm_kg") %>% 
+  mutate(across(c(where(is.numeric), -p.value), ~round(.x, 4))) %>% 
+  mutate(p.value = gtsummary::style_pvalue(p.value),
+         term = "Сухая масса тела, кг") %>% 
+  select(-statistic) %>% 
+  slice_tail(n = 1) %>% 
+  rename(
+    `Показатель` = term,
+    `Коэффициент (β)` = estimate,
+    `Стандартная ошибка` = std.error,
+    `P-value` = p.value,
+    `Нижн. гр. 95% ДИ` = conf.low,
+    `Верхн. гр. 95% ДИ` = conf.high
+  ) %>% 
+  flextable() %>%
+  add_header_row(., values = "Оценка коэффициента сухой массы тела в модели Cmax", colwidth = 6) %>% 
+  flex_default_fun()
+```
+
+При увеличении массы тела на 1 кг Vd уменьшается на 0.004 (95%ДИ[0.001; 007]) л/кг, при увеличении площади поверхности тела на 1 $м^2$ Vd уменьшается на 0.311 (95%ДИ[0.032; 0.589]) л/кг.
+
+При увеличении сухой массы тела на 1 кг Cmax уменьшается на 0.0086 (95%ДИ[0.0002; 0.017]) г/л.
