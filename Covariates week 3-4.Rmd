@@ -15,8 +15,8 @@ knitr::opts_chunk$set(echo = TRUE)
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(flextable))
 library(patchwork)
-library(GGally)
 library(easystats)
+library(GGally)
 library(regressinator)
 library(broom)
 library(gridExtra)
@@ -1700,3 +1700,31 @@ Cmax_lm2_v3 %>%
 При увеличении массы тела на 1 кг Vd уменьшается на 0.004 (95%ДИ[0.001; 007]) л/кг, при увеличении площади поверхности тела на 1 $м^2$ Vd уменьшается на 0.311 (95%ДИ[0.032; 0.589]) л/кг.
 
 При увеличении сухой массы тела на 1 кг Cmax уменьшается на 0.0086 (95%ДИ[0.0002; 0.017]) г/л.
+
+## 7.2 Влияние пола на ФК-параметры
+
+Пол не влияет значимо на AUC (Мужской пол 95%ДИ[-0.3108; 0.1754]), на Cmax (Мужской пол 95%ДИ[-0.1505; 0.326])
+
+У субъектов мужского пола объем распределения на 0,106 л/кг выше, чем у женщин при прочих равных (95%ДИ[-0.0155; 0.1964])).
+
+```{r}
+fit_Vd %>% 
+  broom::tidy(conf.int = TRUE) %>% filter(term == "sexM") %>% 
+  mutate(across(c(where(is.numeric), -p.value), ~round(.x, 4))) %>% 
+  mutate(p.value = gtsummary::style_pvalue(p.value),
+         term = "Пол") %>% 
+  select(-statistic) %>% 
+  slice_tail(n = 1) %>% 
+  rename(
+    `Показатель` = term,
+    `Коэффициент (β)` = estimate,
+    `Стандартная ошибка` = std.error,
+    `P-value` = p.value,
+    `Нижн. гр. 95% ДИ` = conf.low,
+    `Верхн. гр. 95% ДИ` = conf.high
+  ) %>% 
+  flextable() %>%
+  add_header_row(., values = "Оценка коэффициента пола в модели Vd", colwidth = 6) %>% 
+  flex_default_fun()
+
+```
