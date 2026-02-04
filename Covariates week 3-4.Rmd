@@ -151,26 +151,6 @@ rename_with(tolower) %>%
 rm(Vestal_1977_young)
 ```
 
-```{r rat_Kozawa_prep}
-Kozawa_2007 <- Kozawa_2007 %>% 
-  mutate(time_min = round(time_h * 60, 0)) %>% 
-  mutate(route = route %>% str_remove_all(" bolus")) %>%
-  select(-time_h) %>% 
-  mutate(number = dose_g_per_kg/0.5)
-```
-
-```{r rat_Eriksson_prep}
-Eriksson_1977 <- Eriksson_1977 %>% 
-  mutate(time_min = round(time_h * 60, 0)) %>% 
-  select(-time_h) %>% 
-  mutate(number = case_when(
-      dose_g_per_kg == 0.75 ~ 1,
-      dose_g_per_kg == 1.50 ~ 2,
-      dose_g_per_kg == 3.00 ~ 3,
-    ))
-```
-
-
 ```{r rat_data_merge}
 # rat_data <- rbind(Kozawa_2007, Eriksson_1977)
 ```
@@ -388,31 +368,6 @@ Wilkinson_PO_clean %>%
        caption = "По данным Wilkinson-1976-PO")  
 ```
 
-```{r, fig.height=12, fig.width=15, dpi=300}
-ggplot(Kozawa_2007, aes(x = time_min, y = conc_g_per_L)) +
-  geom_line(aes(group = number)) +
-  scale_y_continuous(breaks = seq(0, 3.6, 0.2)) +
-  scale_x_continuous(breaks = seq(0, 500, 25)) +
-  labs(title = "Зависимость концентрации от времени",
-       subtitle = "Усредненные данные",
-       caption = "По данным Kozawa-2007",
-       x = "Время, мин",
-       y = "Концентрация, г/л")
-```
-
-
-```{r, fig.height=12, fig.width=15, dpi=300}
-ggplot(Eriksson_1977, aes(x = time_min, y = conc_g_per_L)) +
-  geom_line(aes(group = number)) +
-  scale_y_continuous(breaks = seq(0, 1.8, 0.1)) +
-  scale_x_continuous(breaks = seq(0, 300, 30)) +
-  labs(title = "Зависимость концентрации от времени",
-       subtitle = "Усредненные данные",
-       caption = "По данным Eriksson-1977",
-       x = "Время, мин",
-       y = "Концентрация, г/л")
-```
-
 # 3. Расчет ФК параметров
 
 ```{r pk_calc_functions}
@@ -600,58 +555,6 @@ Wilkinson_PO_pk <- Wilkinson_PO_clean %>%
   mutate(subject_id = str_c("W-PO-", subject_id)) %>% 
   select(-case)
 rm(Wilkinson_PO_clean)
-```
-
-
-```{r rat_Kozawa_pk}
-Kozawa_2007_pk <- Kozawa_2007 %>% 
-  arrange(time_min) %>% 
-  nest(.by = number, .key = "average_data") %>% 
-  mutate(pharma = purrr::map(average_data,
-                            ~pharma_fun(.$conc_g_per_L,
-                                        .$time_min,
-                                        .$dose_g_per_kg))) %>% 
-  unnest_wider(col = pharma) %>% 
-  select(-average_data)
-  
-
-Kozawa_2007_pk <- Kozawa_2007_pk %>% 
-  select(-Kel, -C_0_1_order, -V_d_1_order)
-
-Kozawa_2007_pk <- Kozawa_2007 %>% 
-  select(-c(time_min, conc_g_per_L)) %>% 
-  group_by(number) %>% 
-  slice(1) %>% 
-  ungroup() %>% 
-  right_join(Kozawa_2007_pk) %>% 
-  select(-number)
-```
-
-
-```{r rat_Eriksson_pk}
-Eriksson_1977_pk <- Eriksson_1977 %>% 
-  arrange(time_min) %>% 
-  nest(.by = number, .key = "average_data") %>% 
-  mutate(pharma = purrr::map(average_data,
-                            ~pharma_fun(.$conc_g_per_L,
-                                        .$time_min,
-                                        .$dose_g_per_kg))) %>% 
-  unnest_wider(col = pharma) %>% 
-  select(-average_data)
-  
-
-Eriksson_1977_pk <- Eriksson_1977_pk %>% 
-  select(-Kel, -C_0_1_order, -V_d_1_order)
-
-# для двух концентраций не хватает точек, чтобы чтобы вычислить beta
-
-Eriksson_1977_pk <- Eriksson_1977 %>% 
-  select(-c(time_min, conc_g_per_L)) %>% 
-  group_by(number) %>% 
-  slice(1) %>% 
-  ungroup() %>% 
-  right_join(Eriksson_1977_pk) %>% 
-  select(-number)
 ```
 
 # 4. Объединение датасетов
@@ -1513,6 +1416,107 @@ resid_panel(Cmax_lm2_v2, plots = c("lev", "cookd"))
 
 # Allometric scaling using rats' PK parameters
 
+## Data unification
+
+```{r rat_Kozawa_prep}
+Kozawa_2007 <- Kozawa_2007 %>% 
+  mutate(time_min = round(time_h * 60, 0)) %>% 
+  mutate(route = route %>% str_remove_all(" bolus")) %>%
+  select(-time_h) %>% 
+  mutate(number = dose_g_per_kg/0.5)
+```
+
+```{r rat_Eriksson_prep}
+Eriksson_1977 <- Eriksson_1977 %>% 
+  mutate(time_min = round(time_h * 60, 0)) %>% 
+  select(-time_h) %>% 
+  mutate(number = case_when(
+      dose_g_per_kg == 0.75 ~ 1,
+      dose_g_per_kg == 1.50 ~ 2,
+      dose_g_per_kg == 3.00 ~ 3,
+    ))
+```
+
+## Concentration-time plots
+
+```{r, fig.height=12, fig.width=15, dpi=300}
+ggplot(Kozawa_2007, aes(x = time_min, y = conc_g_per_L)) +
+  geom_line(aes(group = number)) +
+  scale_y_continuous(breaks = seq(0, 3.6, 0.2)) +
+  scale_x_continuous(breaks = seq(0, 500, 25)) +
+  labs(title = "Зависимость концентрации от времени",
+       subtitle = "Усредненные данные",
+       caption = "По данным Kozawa-2007",
+       x = "Время, мин",
+       y = "Концентрация, г/л")
+```
+
+
+```{r, fig.height=12, fig.width=15, dpi=300}
+ggplot(Eriksson_1977, aes(x = time_min, y = conc_g_per_L)) +
+  geom_line(aes(group = number)) +
+  scale_y_continuous(breaks = seq(0, 1.8, 0.1)) +
+  scale_x_continuous(breaks = seq(0, 300, 30)) +
+  labs(title = "Зависимость концентрации от времени",
+       subtitle = "Усредненные данные",
+       caption = "По данным Eriksson-1977",
+       x = "Время, мин",
+       y = "Концентрация, г/л")
+```
+
+## PK-parameteres calculation
+
+```{r rat_Kozawa_pk}
+Kozawa_2007_pk <- Kozawa_2007 %>% 
+  arrange(time_min) %>% 
+  nest(.by = number, .key = "average_data") %>% 
+  mutate(pharma = purrr::map(average_data,
+                            ~pharma_fun(.$conc_g_per_L,
+                                        .$time_min,
+                                        .$dose_g_per_kg))) %>% 
+  unnest_wider(col = pharma) %>% 
+  select(-average_data)
+  
+
+Kozawa_2007_pk <- Kozawa_2007_pk %>% 
+  select(-Kel, -C_0_1_order, -V_d_1_order)
+
+Kozawa_2007_pk <- Kozawa_2007 %>% 
+  select(-c(time_min, conc_g_per_L)) %>% 
+  group_by(number) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  right_join(Kozawa_2007_pk) %>% 
+  select(-number)
+```
+
+
+```{r rat_Eriksson_pk}
+Eriksson_1977_pk <- Eriksson_1977 %>% 
+  arrange(time_min) %>% 
+  nest(.by = number, .key = "average_data") %>% 
+  mutate(pharma = purrr::map(average_data,
+                            ~pharma_fun(.$conc_g_per_L,
+                                        .$time_min,
+                                        .$dose_g_per_kg))) %>% 
+  unnest_wider(col = pharma) %>% 
+  select(-average_data)
+  
+
+Eriksson_1977_pk <- Eriksson_1977_pk %>% 
+  select(-Kel, -C_0_1_order, -V_d_1_order)
+
+# для двух концентраций не хватает точек, чтобы чтобы вычислить beta
+
+Eriksson_1977_pk <- Eriksson_1977 %>% 
+  select(-c(time_min, conc_g_per_L)) %>% 
+  group_by(number) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  right_join(Eriksson_1977_pk) %>% 
+  select(-number)
+```
+
 ## Observed - Predicted (Wilkinson IV)
 
 ```{r rat_data} 
@@ -1656,7 +1660,7 @@ ggplot(aes(x = Type, y = Percentage)) +
 ```
 
 ```{r Beta_visual_IV}
-# Бета
+# Beta
 Beta_vis_IV <- bind_rows(
   main_df_IV %>% transmute(value = Beta_obs, model = "Observed"),
   allometric_IV %>% transmute(value = Beta_classic, model = "Allometric classic"),
@@ -1787,7 +1791,7 @@ ggplot(Vd_vis_PO, aes(x = model, y = value)) +
 ## PO allometric scaling (3000 mg per kg)
 
 ```{r allometric_PO_3_g}
-# Шкалирование
+# Scaling
 allometric_PO_3 <- allometric %>% 
   filter(route == "PO") %>% 
   crossing(rat_data_pk %>% filter(dose_g_per_kg == 3) %>% 
