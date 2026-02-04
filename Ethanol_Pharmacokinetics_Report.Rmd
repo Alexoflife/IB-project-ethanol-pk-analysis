@@ -1714,9 +1714,36 @@ Cmax_lm2_v3 %>%
   flex_default_fun()
 ```
 
-With an increase in body weight by 1 kg, Vd decreases by 0.004 (95% CI [0.001; 0.007]) L/kg, and with an increase in body surface area by 1 $m^2$, Vd decreases by 0.311 (95% CI [0.032; 0.589]) L/kg.
+With an increase in body weight by 1 kg, Vd decreases by 0.004 (95% CI [0.001; 0.007]) L/kg (all other things being equal), and with an increase in body surface area by 1 $m^2$, Vd decreases by 0.311 (95% CI [0.032; 0.589]) L/kg (all other things being equal).
 
-When lean body mass increases by 1 kg, Cmax decreases by 0.0086 (95% CI [0.0002; 0.017]) g/L.
+When lean body mass increases by 1 kg, Cmax decreases by 0.0086 (95% CI [0.0002; 0.017]) g/L, all other things being equal.
+
+### 1.7.2. The effect of sex on PK-parameters
+
+Sex does not significantly affect AUC (Male 95%CI[-0.3108; 0.1754]) or Cmax (Male 95%CI[-0.1505; 0.326]).
+
+In male subjects, the volume of distribution is 0.106 L/kg higher than in females, all other things being equal (95% CI [-0.0155; 0.1964]).
+
+```{r}
+fit_Vd %>% 
+  broom::tidy(conf.int = TRUE) %>% filter(term == "sexM") %>% 
+  mutate(across(c(where(is.numeric), -p.value), ~round(.x, 4))) %>% 
+  mutate(p.value = gtsummary::style_pvalue(p.value),
+         term = "Sex") %>% 
+  select(-statistic) %>% 
+  slice_tail(n = 1) %>% 
+  rename(
+    `Indicator` = term,
+    `Coefficient (β)` = estimate,
+    `Standard error` = std.error,
+    `P-value` = p.value,
+    `Lower bound of 95% CI` = conf.low,
+    `Upper bound of 95% CI` = conf.high
+  ) %>% 
+  flextable() %>%
+  add_header_row(., values = " Estimation of the sex coefficient in the Vd model", colwidth = 6) %>% 
+  flex_default_fun()
+```
 
 # 2. Allometric scaling using rats' PK parameters
 
@@ -1729,6 +1756,7 @@ Kozawa_2007 <- Kozawa_2007 %>%
   select(-time_h) %>% 
   mutate(number = dose_g_per_kg/0.5)
 ```
+
 
 ```{r rat_Eriksson_prep}
 Eriksson_1977 <- Eriksson_1977 %>% 
