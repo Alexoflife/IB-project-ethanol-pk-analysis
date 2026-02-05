@@ -34,11 +34,11 @@ Contribution: data preparation, exploratory analysis, preparing presentations, w
 
 ## Table of content
 
-[Structure of repository]()
+[Structure of repository](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#structure-of-repository)
 
-[Introduction]()
+[Introduction](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#introduction)
 
-[Goal and objectives]()
+[Goal and objectives](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#goal-and-objectives)
 
 [Data]()
 
