@@ -40,15 +40,15 @@ Contribution: data preparation, exploratory analysis, preparing presentations, w
 
 [Goal and objectives](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#goal-and-objectives)
 
-[Data]()
+[Data](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#data)
 
-[Study plan]()
+[Study plan](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#study-plan)
 
-[Results]()
+[Results](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#results)
 
-[Software Requirements]()
+[Software Requirements](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#software-requirements)
 
-[References]()
+[References](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#references)
 
 ## Structure of repository
 
