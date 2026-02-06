@@ -8,23 +8,23 @@ Our study investigates ethanol pharmacokinetics using biostatistical modeling ap
 
 **Students**:
 
-1) [Anna Vronskaia](https://github.com/annavronskaia) (*BIOCAD, St. Petersburg*)
+1)  [Anna Vronskaia](https://github.com/annavronskaia) (*BIOCAD, St. Petersburg*)
 
 Contribution: data preparation, individual dataset analysis, regression analysis.
 
-2) [Alexey Gordeev](https://github.com/deigord) (*Almazov National Medical Research Centre, St. Petersburg*)
+2)  [Alexey Gordeev](https://github.com/deigord) (*Almazov National Medical Research Centre, St. Petersburg*)
 
 Contribution: data preparation, functional programming, regression analysis, allometric scaling, repository management.
 
-3) [Ekaterina Danilina](https://github.com/kat-dani) (*Kurgan State University, Kurgan*)
+3)  [Ekaterina Danilina](https://github.com/kat-dani) (*Kurgan State University, Kurgan*)
 
 Contribution: data preparation, regression analysis.
 
-4) [Milana Sagitova](https://github.com/sagitowam) (*Sechenov University, Moscow*)
+4)  [Milana Sagitova](https://github.com/sagitowam) (*Sechenov University, Moscow*)
 
 Contriobution: data preparation, regression analysis, allometric scaling.
 
-5) [Sergey Tsaregorodtsev](https://github.com/svtsar) (*Russian University of Medicine, Moscow*)
+5)  [Sergey Tsaregorodtsev](https://github.com/svtsar) (*Russian University of Medicine, Moscow*)
 
 Contribution: data preparation, exploratory analysis, preparing presentations, writing thesis statements.
 
@@ -52,6 +52,18 @@ Contribution: data preparation, exploratory analysis, preparing presentations, w
 
 ## Structure of repository
 
+-   [data/raw](data/raw/) - raw input data
+
+-   [figures](figures/) - figures for readme page
+
+-   [renv](renv/) - renv infrastructure files
+
+-   [Ethanol_Pharmacokinetics_Report.Rmd](Ethanol_Pharmacokinetics_Report.Rmd) - main RMarkdown file containing the full analysis
+
+-   [Ethanol_Pharmacokinetics_Report.html](Ethanol_Pharmacokinetics_Report.html) - Rendered HTML report
+
+-   [renv.lock](renv.lock) - locked package versions and dependencies
+
 ## Introduction
 
 Alcohol consumption remains a major contributor to the global burden of disease: in 2021 it ranked among the leading causes worldwide, and it is causally linked to more than 200 diagnostic categories. Alcohol dependence affects about 3.7% of the world’s adult population, and the economic costs attributed to alcohol use have been estimated at 2.6% of global GDP [1]. These facts motivate quantitative analyses of variability in ethanol pharmacokinetics across studies and conditions.
@@ -68,23 +80,23 @@ So, the **goal of a project** is characterize ethanol pharmacokinetics (PK) usin
 
 **Objectives**:
 
- - Describe each ethanol PK dataset (design, dosing, sampling, covariates), calculate and harmonize PK variables.
+-   Describe each ethanol PK dataset (design, dosing, sampling, covariates), calculate and harmonize PK variables.
 
- - Visualize individual profiles: plot subject-level concentration–time curves within each dataset to assess variability and data quality.
+-   Visualize individual profiles: plot subject-level concentration–time curves within each dataset to assess variability and data quality.
 
- - Build an explanatory model: fit and validate regression models linking PK outcomes to covariates.
+-   Build an explanatory model: fit and validate regression models linking PK outcomes to covariates.
 
- - Replicate the workflow in animal data and compare/scale results (e.g., allometric translation)
+-   Replicate the workflow in animal data and compare/scale results (e.g., allometric translation)
 
 ## Data
 
 Human ethanol pharmacokinetic data (8 datasets) [3–8] and rat data (2 datasets) [9, 10] were analyzed.
 
-![](figures/data.png)
+![Figure 1. Included data schema](figures/data.png)
 
 ## Study Plan
 
-![](figures/study_plan.png)
+![Figure 2. Study plan](figures/study_plan.png)
 
 ## Results
 
@@ -94,22 +106,22 @@ Please, use renv::restore() to restore all dependencies. All packages and requir
 
 ## References
 
-1.	Danpanichkul, P., Díaz, L. A., Suparan, K., Tothanarungroj, P., Sirimangklanurak, S., Auttapracha, T., Blaney, H. L., Sukphutanan, B., Pang, Y., Kongarin, S., Idalsoaga, F., Fuentes-López, E., Leggio, L., Noureddin, M., White, T. M., Louvet, A., Mathurin, P., Loomba, R., Kamath, P. S., … Arab, J. P. (2025). Global epidemiology of alcohol-related liver disease, liver cancer, and alcohol use disorder, 2000–2021. Clinical and Molecular Hepatology, 31(2), 525–547. https://doi.org/10.3350/cmh.2024.0835
+1.  Danpanichkul, P., Díaz, L. A., Suparan, K., Tothanarungroj, P., Sirimangklanurak, S., Auttapracha, T., Blaney, H. L., Sukphutanan, B., Pang, Y., Kongarin, S., Idalsoaga, F., Fuentes-López, E., Leggio, L., Noureddin, M., White, T. M., Louvet, A., Mathurin, P., Loomba, R., Kamath, P. S., … Arab, J. P. (2025). Global epidemiology of alcohol-related liver disease, liver cancer, and alcohol use disorder, 2000–2021. Clinical and Molecular Hepatology, 31(2), 525–547. <https://doi.org/10.3350/cmh.2024.0835>
 
-2.	Holford, N. H. G. (1987). Clinical Pharmacokinetics of Ethanol. Clinical Pharmacokinetics, 13(5), 273–292. https://doi.org/10.2165/00003088-198713050-00001
+2.  Holford, N. H. G. (1987). Clinical Pharmacokinetics of Ethanol. Clinical Pharmacokinetics, 13(5), 273–292. <https://doi.org/10.2165/00003088-198713050-00001>
 
-3.	Ammon, E., Schäfer, C., Hofmann, U., & Klotz, U. (1996). Disposition and first-pass metabolism of ethanol in humans: Is it gastric or hepatic and does it depend on gender?*. Clinical Pharmacology & Therapeutics, 59(5), 503–513. https://doi.org/10.1016/S0009-9236(96)90178-2
+3.  Ammon, E., Schäfer, C., Hofmann, U., & Klotz, U. (1996). Disposition and first-pass metabolism of ethanol in humans: Is it gastric or hepatic and does it depend on gender?\*. Clinical Pharmacology & Therapeutics, 59(5), 503–513. [https://doi.org/10.1016/S0009-9236(96)90178-2](https://doi.org/10.1016/S0009-9236(96)90178-2){.uri}
 
-4.	Thierauf-Emberger, A., Schuldis, D., Dacko, M., & Lange, T. (2023). Ethanol Kinetics in the Human Brain Determined by Magnetic Resonance Spectroscopy. International Journal of Molecular Sciences, 24(17), 13499. https://doi.org/10.3390/ijms241713499
+4.  Thierauf-Emberger, A., Schuldis, D., Dacko, M., & Lange, T. (2023). Ethanol Kinetics in the Human Brain Determined by Magnetic Resonance Spectroscopy. International Journal of Molecular Sciences, 24(17), 13499. <https://doi.org/10.3390/ijms241713499>
 
-5.	Vestal, R. E., McGuire, E. A., Tobin, J. D., Andres, R., Norris, A. H., & Mezey, E. (1977). Aging and ethanol metabolism. Clinical Pharmacology & Therapeutics, 21(3), 343–354. https://doi.org/10.1002/cpt1977213343
+5.  Vestal, R. E., McGuire, E. A., Tobin, J. D., Andres, R., Norris, A. H., & Mezey, E. (1977). Aging and ethanol metabolism. Clinical Pharmacology & Therapeutics, 21(3), 343–354. <https://doi.org/10.1002/cpt1977213343>
 
-6.	Wilkinson, P. K., Sedman, A. J., Sakmar, E., Earhart, R. H., Weidler, D. J., & Wagner, J. G. (1976). Blood ethanol concentrations during and following constant‐rate intravenous infusion of alcohol. Clinical Pharmacology & Therapeutics, 19(2), 213–223. https://doi.org/10.1002/cpt1976192213
+6.  Wilkinson, P. K., Sedman, A. J., Sakmar, E., Earhart, R. H., Weidler, D. J., & Wagner, J. G. (1976). Blood ethanol concentrations during and following constant‐rate intravenous infusion of alcohol. Clinical Pharmacology & Therapeutics, 19(2), 213–223. <https://doi.org/10.1002/cpt1976192213>
 
-7.	Wilkinson, P. K., Sedman, A. J., Sakmar, E., Kay, D. R., & Wagner, J. G. (1977). Pharmacokinetics of ethanol after oral administration in the fasting state. Journal of Pharmacokinetics and Biopharmaceutics, 5(3), 207–224. https://doi.org/10.1007/BF01065396
+7.  Wilkinson, P. K., Sedman, A. J., Sakmar, E., Kay, D. R., & Wagner, J. G. (1977). Pharmacokinetics of ethanol after oral administration in the fasting state. Journal of Pharmacokinetics and Biopharmaceutics, 5(3), 207–224. <https://doi.org/10.1007/BF01065396>
 
-8.	Yelland, L. N., Burns, J. P., Sims, D. N., Salter, A. B., & White, J. M. (2008). Inter- and intra-subject variability in ethanol pharmacokinetic parameters: Effects of testing interval and dose. Forensic Science International, 175(1), 65–72. https://doi.org/10.1016/j.forsciint.2007.05.011
+8.  Yelland, L. N., Burns, J. P., Sims, D. N., Salter, A. B., & White, J. M. (2008). Inter- and intra-subject variability in ethanol pharmacokinetic parameters: Effects of testing interval and dose. Forensic Science International, 175(1), 65–72. <https://doi.org/10.1016/j.forsciint.2007.05.011>
 
-9.	Eriksson, C. J. P., & Sippel, H. W. (1977). The distribution and metabolism of acetaldehyde in rats during ethanol oxidation—I: The distribution of acetaldehyde in liver, brain, blood and breath. Biochemical Pharmacology, 26(3), 241–247. https://doi.org/10.1016/0006-2952(77)90310-0
+9.  Eriksson, C. J. P., & Sippel, H. W. (1977). The distribution and metabolism of acetaldehyde in rats during ethanol oxidation—I: The distribution of acetaldehyde in liver, brain, blood and breath. Biochemical Pharmacology, 26(3), 241–247. [https://doi.org/10.1016/0006-2952(77)90310-0](https://doi.org/10.1016/0006-2952(77)90310-0){.uri}
 
-10.	Kozawa, S., Yukawa, N., Liu, J., Shimamoto, A., Kakizaki, E., & Fujimiya, T. (2007). Effect of chronic ethanol administration on disposition of ethanol and its metabolites in rat. Alcohol, 41(2), 87–93. https://doi.org/10.1016/j.alcohol.2007.03.002
+10. Kozawa, S., Yukawa, N., Liu, J., Shimamoto, A., Kakizaki, E., & Fujimiya, T. (2007). Effect of chronic ethanol administration on disposition of ethanol and its metabolites in rat. Alcohol, 41(2), 87–93. <https://doi.org/10.1016/j.alcohol.2007.03.002>
