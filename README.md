@@ -121,7 +121,7 @@ Human ethanol pharmacokinetic data (8 datasets) [3–8] and rat data (2 datasets
 ### Allometric scaling (metric)
 
 $$
-\text{Relative error (%)} =
+\text{Relative error (\%)} =
 \frac{\text{Predicted} - \text{Observed}}{\text{Observed}} \times 100
 $$
 
