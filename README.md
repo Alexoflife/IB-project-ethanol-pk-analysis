@@ -6,23 +6,23 @@ Our study investigates ethanol pharmacokinetics using biostatistical modeling ap
 
 ## Table of content
 
-[Structure of repository](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#structure-of-repository)
+ + [Structure of repository](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#structure-of-repository)
 
-[Introduction](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#introduction)
+ + [Introduction](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#introduction)
 
-[Goal and objectives](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#goal-and-objectives)
+ + [Goal and objectives](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#goal-and-objectives)
 
-[Data](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#data)
+ + [Data](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#data)
 
-[Study plan](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#study-plan)
+ + [Study plan](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#study-plan)
 
-[Results](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#results)
+ + [Results](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#results)
 
-[Software Requirements](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#software-requirements)
+ + [Software Requirements](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#software-requirements)
 
-[Contributors](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#contributors)
+ + [Contributors](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#contributors)
 
-[References](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#references)
+ + [References](https://github.com/petrov-aleks/IB-project-ethanol-pk-analysis/blob/main/README.md#references)
 
 ## Structure of repository
 
@@ -173,7 +173,7 @@ Contribution: data preparation, exploratory analysis, preparing presentations, w
 
 2.  Holford, N. H. G. (1987). Clinical Pharmacokinetics of Ethanol. Clinical Pharmacokinetics, 13(5), 273–292. <https://doi.org/10.2165/00003088-198713050-00001>
 
-3.  Ammon, E., Schäfer, C., Hofmann, U., & Klotz, U. (1996). Disposition and first-pass metabolism of ethanol in humans: Is it gastric or hepatic and does it depend on gender?\*. Clinical Pharmacology & Therapeutics, 59(5), 503–513. [https://doi.org/10.1016/S0009-9236(96)90178-2](https://doi.org/10.1016/S0009-9236(96)90178-2){.uri}
+3.  Ammon, E., Schäfer, C., Hofmann, U., & Klotz, U. (1996). Disposition and first-pass metabolism of ethanol in humans: Is it gastric or hepatic and does it depend on gender?\*. Clinical Pharmacology & Therapeutics, 59(5), 503–513. <https://doi.org/10.1016/S0009-9236(96)90178-2>
 
 4.  Thierauf-Emberger, A., Schuldis, D., Dacko, M., & Lange, T. (2023). Ethanol Kinetics in the Human Brain Determined by Magnetic Resonance Spectroscopy. International Journal of Molecular Sciences, 24(17), 13499. <https://doi.org/10.3390/ijms241713499>
 
@@ -185,8 +185,8 @@ Contribution: data preparation, exploratory analysis, preparing presentations, w
 
 8.  Yelland, L. N., Burns, J. P., Sims, D. N., Salter, A. B., & White, J. M. (2008). Inter- and intra-subject variability in ethanol pharmacokinetic parameters: Effects of testing interval and dose. Forensic Science International, 175(1), 65–72. <https://doi.org/10.1016/j.forsciint.2007.05.011>
 
-9. Jones, A. W. (1984). Interindividual variations in the disposition and metabolism of ethanol in healthy men. Alcohol, 1(5), 385–391. https://doi.org/10.1016/0741-8329(84)90008-9 
+9. Jones, A. W. (1984). Interindividual variations in the disposition and metabolism of ethanol in healthy men. Alcohol, 1(5), 385–391. <https://doi.org/10.1016/0741-8329(84)90008-9>
 
-10.  Eriksson, C. J. P., & Sippel, H. W. (1977). The distribution and metabolism of acetaldehyde in rats during ethanol oxidation—I: The distribution of acetaldehyde in liver, brain, blood and breath. Biochemical Pharmacology, 26(3), 241–247. [https://doi.org/10.1016/0006-2952(77)90310-0](https://doi.org/10.1016/0006-2952(77)90310-0)
+10.  Eriksson, C. J. P., & Sippel, H. W. (1977). The distribution and metabolism of acetaldehyde in rats during ethanol oxidation—I: The distribution of acetaldehyde in liver, brain, blood and breath. Biochemical Pharmacology, 26(3), 241–247. <https://doi.org/10.1016/0006-2952(77)90310-0>
 
 11. Kozawa, S., Yukawa, N., Liu, J., Shimamoto, A., Kakizaki, E., & Fujimiya, T. (2007). Effect of chronic ethanol administration on disposition of ethanol and its metabolites in rat. Alcohol, 41(2), 87–93. <https://doi.org/10.1016/j.alcohol.2007.03.002>
