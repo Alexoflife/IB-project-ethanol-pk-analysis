@@ -187,6 +187,6 @@ Contribution: data preparation, exploratory analysis, preparing presentations, w
 
 9. Jones, A. W. (1984). Interindividual variations in the disposition and metabolism of ethanol in healthy men. Alcohol, 1(5), 385–391. https://doi.org/10.1016/0741-8329(84)90008-9 
 
-10.  Eriksson, C. J. P., & Sippel, H. W. (1977). The distribution and metabolism of acetaldehyde in rats during ethanol oxidation—I: The distribution of acetaldehyde in liver, brain, blood and breath. Biochemical Pharmacology, 26(3), 241–247. [https://doi.org/10.1016/0006-2952(77)90310-0](https://doi.org/10.1016/0006-2952(77)90310-0){.uri}
+10.  Eriksson, C. J. P., & Sippel, H. W. (1977). The distribution and metabolism of acetaldehyde in rats during ethanol oxidation—I: The distribution of acetaldehyde in liver, brain, blood and breath. Biochemical Pharmacology, 26(3), 241–247. [https://doi.org/10.1016/0006-2952(77)90310-0](https://doi.org/10.1016/0006-2952(77)90310-0)
 
 11. Kozawa, S., Yukawa, N., Liu, J., Shimamoto, A., Kakizaki, E., & Fujimiya, T. (2007). Effect of chronic ethanol administration on disposition of ethanol and its metabolites in rat. Alcohol, 41(2), 87–93. <https://doi.org/10.1016/j.alcohol.2007.03.002>
